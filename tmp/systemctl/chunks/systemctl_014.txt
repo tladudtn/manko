@@ -1,0 +1,165 @@
+     --failed
+         List units in failed state. This is equivalent to --state=failed.
+
+         Added in version 233.
+
+     --no-wall
+         Do not send wall message before halt, power-off and reboot.
+
+     --global
+         When used with enable and disable, operate on the global user configu‐
+         ration  directory, thus enabling or disabling a unit file globally for
+         all future logins of all users.
+
+     --no-reload
+         When used with enable, disable, preset, mask, or unmask,  do  not  im‐
+         plicitly reload daemon configuration after executing the changes.
+
+     --kill-whom=
+         When  used  with  kill,  choose which processes to send a UNIX process
+         signal to. Must be one of main,  control,  cgroup  or  all  to  select
+         whether  to  kill  only  the  main  process,  the control process, all
+         processes in the unit's control group or all processes  of  the  unit.
+         The  main process of the unit is the one that defines the life-time of
+         it. A control process of a unit is one that is invoked by the  manager
+         to  induce state changes of it. For example, all processes started due
+         to the ExecStartPre=, ExecStop= or  ExecReload=  settings  of  service
+         units  are  control  processes.  Note  that  there is only one control
+         process per unit at a time, as only one state change is executed at  a
+         time.  For  services of type Type=forking, the initial process started
+         by the manager for ExecStart= is a control process, while the  process
+         ultimately  forked off by that one is then considered the main process
+         of the unit (if it can be determined). This is different  for  service
+         units  of other types, where the process forked off by the manager for
+         ExecStart= is always the main process itself. A service unit  consists
+         of zero or one main process, zero or one control process plus any num‐
+         ber  of additional processes part of the unit's control group. Not all
+         unit types manage processes of these types however. For  example,  for
+         mount  units, control processes are defined (which are the invocations
+         of /usr/bin/mount and /usr/bin/umount), but no  main  process  is  de‐
+         fined. If omitted, defaults to all, except if --kill-subgroup= is used
+         in which case defaults to cgroup.
+
+         Added in version 252.
+
+     --kill-value=INT
+         If used with the kill command, enqueues a signal along with the speci‐
+         fied integer value parameter to the specified process(es). This opera‐
+         tion  is  only  available  for  POSIX  Realtime  Signals (i.e.  --sig‐
+         nal=SIGRTMIN+...  or --signal=SIGRTMAX-...), and ensures  the  signals
+         are  generated  via  the sigqueue(3) system call, rather than kill(3).
+         The specified value must be a 32-bit signed integer, and may be speci‐
+         fied either in decimal, in hexadecimal (if prefixed with "0x"),  octal
+         (if prefixed with "0o") or binary (if prefixed with "0b")
+
+         If this option is used the signal will only be enqueued on the control
+         or main process of the unit, never on other processes belonging to the
+         unit,   i.e.   --kill-whom=all  will  only  affect  main  and  control
+         processes but no other processes.
+
+         Added in version 254.
+
+     --kill-subgroup=PATH
+         Takes a control group sub-path to send signals to, for  use  with  the
+         kill  command.  By  default  the  chosen  signal  is  delivered to all
+         processes of the unit's cgroups (as well as the main/control processes
+         (if outside) – subject to --kill-whom=). But with this option  a  sub‐
+         group  can be selelected instead. This functionality is only available
+         if "cgroup" or "cgroup-fail" are used with --kill-whom=, and  in  fact
+         the former is the default if --kill-subgroup= is used.
+
+         The  specified path may, but doesn't have to be prefixed with a slash,
+         and its absence or presence has no effect,  the  path  is  either  way
+         taken relative to the unit's main control group path.
+
+         This functionality is only available on units where control group del‐
+         egation is enabled (see Delegate= in systemd.resource-control(5)).
+
+         Added in version 258.
+
+     -s, --signal=
+         When  used  with  kill,  choose  which  signal  to  send  to  selected
+         processes. Must be one of the well-known  signal  specifiers  such  as
+         SIGTERM, SIGINT or SIGSTOP. If omitted, defaults to SIGTERM.
+
+         The  special  value  "help" will list the known values and the program
+         will exit immediately, and the special value "list"  will  list  known
+         values  along  with  the numerical signal numbers and the program will
+         exit immediately.
+
+     --what=
+         Select what type of per-unit resources to remove when the  clean  com‐
+         mand  is invoked, see above. Takes one of configuration, state, cache,
+         logs, runtime, fdstore to select the type of resource. This option may
+         be specified more than once, in  which  case  all  specified  resource
+         types  are  removed.  Also accepts the special value all as a shortcut
+         for specifying all six resource types. If this option is not specified
+         defaults to the combination of cache, runtime and  fdstore,  i.e.  the
+         three kinds of resources that are generally considered to be redundant
+         and  can  be  reconstructed on next invocation. Note that the explicit
+         removal  of  the  fdstore  resource  type  is  only  useful   if   the
+         FileDescriptorStorePreserve=  option  is  enabled,  since the file de‐
+         scriptor store is otherwise cleaned automatically  when  the  unit  is
+         stopped.
+
+         Added in version 243.
+
+     -f, --force
+         When used with enable, overwrite any existing conflicting symlinks.
+
+         When  used  with  edit, create all of the specified units which do not
+         already exist.
+
+         When used with suspend, hibernate, hybrid-sleep,  or  suspend-then-hi‐
+         bernate, the error returned by systemd-logind will be ignored, and the
+         operation  will be performed directly through starting the correspond‐
+         ing units.
+
+         When used with halt, poweroff, reboot, or kexec, execute the  selected
+         operation without shutting down all units. However, all processes will
+         be  killed  forcibly  and  all file systems are unmounted or remounted
+         read-only. This is hence a drastic but relatively safe option  to  re‐
+         quest an immediate reboot. If --force is specified twice for these op‐
+         erations  (with the exception of kexec), they will be executed immedi‐
+         ately, without terminating any processes or unmounting any  file  sys‐
+         tems.
+
+             Warning
+             Specifying --force twice with any of these operations might result
+             in  data  loss.  Note that when --force is specified twice the se‐
+             lected operation is executed by systemctl itself, and  the  system
+             manager  is  not  contacted. This means the command should succeed
+             even when the system manager has crashed.
+
+     --message=
+         When used with halt, poweroff or reboot, set a short message  explain‐
+         ing  the reason for the operation. The message will be logged together
+         with the default shutdown message.
+
+         Added in version 225.
+
+     --now
+         When  used   with   enable,   disable,   mask,   or   reenable,   also
+         start/stop/try-restart  the units after the specified unit file opera‐
+         tions succeed.
+
+         Added in version 220.
+
+     --root=
+         When used with enable/disable/is-enabled (and related  commands),  use
+         the specified root path when looking for unit files. If this option is
+         present,  systemctl  will operate on the file system directly, instead
+         of communicating with the systemd daemon to carry out changes.
+
+     --image=image
+         Takes a path to a disk image file or block device node. If  specified,
+         all operations are applied to file system in the indicated disk image.
+         This option is similar to --root=, but operates on file systems stored
+         in  disk images or block devices. The disk image should either contain
+         just a file system or a set of file systems within a GPT partition ta‐
+         ble, following the UAPI.2  Discoverable  Partitions  Specification[2].
+         For  further  information  on  supported  disk  images,  see  systemd-
+         nspawn(1)'s switch of the same name.
+
+         Added in version 252.
+

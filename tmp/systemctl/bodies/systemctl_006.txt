@@ -1,0 +1,85 @@
+COMMANDS
+
+     disable UNIT...
+         Disables  one  or  more  units.  This removes all symlinks to the unit
+         files backing the specified units from the unit  configuration  direc‐
+         tory,  and  hence undoes any changes made by enable or link. Note that
+         this removes all symlinks to matching unit files,  including  manually
+         created  symlinks,  and  not  just those actually created by enable or
+         link. Note that while disable undoes the effect  of  enable,  the  two
+         commands  are otherwise not symmetric, as disable may remove more sym‐
+         links than a prior enable invocation of the same unit created.
+
+         This command expects valid unit names only, it does not  accept  paths
+         to unit files.
+
+         In  addition  to  the units specified as arguments, all units are dis‐
+         abled that are listed in the Also= setting contained in the  [Install]
+         section of any of the unit files being operated on.
+
+         This command implicitly reloads the system manager configuration after
+         completing  the  operation. Note that this command does not implicitly
+         stop the units that are being disabled. If  this  is  desired,  either
+         combine this command with the --now switch, or invoke the stop command
+         with appropriate arguments later.
+
+         This  command  will print information about the file system operations
+         (symlink removals) executed. This output may be suppressed by  passing
+         --quiet.
+
+         If  a  unit gets disabled but its triggering units are still active, a
+         warning containing  the  names  of  the  triggering  units  is  shown.
+         --no-warn can be used to suppress the warning.
+
+         When  this  command  is  used with --user, the units being operated on
+         might still be enabled in global scope, and thus get started automati‐
+         cally even after a successful disablement in user scope. In this case,
+         a warning about it is shown, which can be suppressed using --no-warn.
+
+         This  command  honors  --system,  --user,  --runtime,   --global   and
+         --no-warn in a similar way as enable.
+
+         Added in version 238.
+
+     reenable UNIT...
+         Reenable  one or more units, as specified on the command line. This is
+         a combination of disable and enable and is useful to  reset  the  sym‐
+         links  a  unit  file is enabled with to the defaults configured in its
+         [Install] section. This command expects a unit name only, it does  not
+         accept paths to unit files.
+
+         This command implicitly reloads the system manager configuration after
+         completing  the  operation. Note that this command does not implicitly
+         restart the units that are being disabled. If this is desired,  either
+         combine  this command with the --now switch, or invoke the try-restart
+         command with appropriate arguments later.
+
+         Added in version 238.
+
+     preset UNIT...
+         Reset the enable/disable status of one or more unit files,  as  speci‐
+         fied  on  the  command  line, to the defaults configured in the preset
+         policy files. This has the same effect as disable or enable, depending
+         how the unit is listed in the preset files.
+
+         Use --preset-mode= to control whether units shall be enabled and  dis‐
+         abled, or only enabled, or only disabled.
+
+         If  the  unit  carries no install information, it will be silently ig‐
+         nored by this command.  UNIT must be the real  unit  name,  any  alias
+         names are ignored silently.
+
+         For  more  information  on  the preset policy format, see systemd.pre‐
+         set(5).
+
+         Added in version 238.
+
+     preset-all
+         Resets all installed unit files to the defaults configured in the pre‐
+         set policy file (see above).
+
+         Use --preset-mode= to control whether units shall be enabled and  dis‐
+         abled, or only enabled, or only disabled.
+
+         Added in version 215.
+

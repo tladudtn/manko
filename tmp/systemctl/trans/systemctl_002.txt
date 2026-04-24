@@ -1,0 +1,87 @@
+
+     list-timers [PATTERN...]
+         현재 메모리에 있는 타이머 유닛을 다음 만료 시간 순서로 나열합니다. 하나 이상의 PATTERN이 지정된 경우, 그중 하나와 일치하는 유닛만 표시됩니다. 다음과 유사한 출력을 생성합니다.
+
+             NEXT                         LEFT          LAST                         PASSED     UNIT                         ACTIVATES
+             -                            -             Thu 2017-02-23 13:40:29 EST  3 days ago ureadahead-stop.timer        ureadahead-stop.service
+             Sun 2017-02-26 18:55:42 EST  1min 14s left Thu 2017-02-23 13:54:44 EST  3 days ago systemd-tmpfiles-clean.timer systemd-tmpfiles-clean.service
+             Sun 2017-02-26 20:37:16 EST  1h 42min left Sun 2017-02-26 11:56:36 EST  6h ago     apt-daily.timer              apt-daily.service
+             Sun 2017-02-26 20:57:49 EST  2h 3min left  Sun 2017-02-26 11:56:36 EST  6h ago     snapd.refresh.timer          snapd.refresh.service
+
+         NEXT는 타이머가 다음에 실행될 시간을 보여줍니다.
+
+         LEFT는 타이머가 다음에 실행될 때까지 남은 시간을 보여줍니다.
+
+         LAST는 타이머가 마지막으로 실행된 시간을 보여줍니다.
+
+         PASSED는 타이머가 마지막으로 실행된 이후 경과된 시간을 보여줍니다.
+
+         UNIT은 타이머의 이름을 보여줍니다.
+
+         ACTIVATES는 타이머가 실행될 때 활성화하는 서비스의 이름을 보여줍니다.
+
+         --all 및 --state=.도 참조하십시오.
+
+         버전 209에 추가되었습니다.
+
+     is-active PATTERN...
+         지정된 유닛 중 하나라도 활성 상태인지(즉, 실행 중인지) 확인합니다.
+         하나 이상이 활성 상태이면 종료 코드 0을 반환하고, 그렇지 않으면 0이 아닌 값을 반환합니다. --quiet가 지정되지 않은 경우, 현재 유닛 상태를 표준 출력에도 출력합니다.
+
+     is-failed [PATTERN...]
+         지정된 유닛 중 하나라도 "failed" 상태인지 확인합니다. 유닛이 지정되지 않은 경우, is-system-running이 반환하는 "degraded" 상태에 해당하는 실패한 유닛이나 순서 사이클이 있는지 확인합니다. 하나 이상이 실패했으면 종료 코드 0을 반환하고, 그렇지 않으면 0이 아닌 값을 반환합니다. --quiet가 지정되지 않은 경우, 현재 유닛 또는 시스템 상태를 표준 출력에도 출력합니다.
+
+         버전 197에 추가되었습니다.
+
+     status [PATTERN...|PID...]]
+         전체 시스템 또는 하나 이상의 유닛에 대한 런타임 상태 정보와 가장 최근의 journal 로그 데이터를 표시합니다. 위치 인수가 지정되지 않았고, --type=, --state= 또는 --failed를 사용하여 유닛 필터가 제공되지 않으면, 전체 시스템의 상태를 표시합니다.
+         --all과 결합되면, 모든 유닛의 상태가 뒤따릅니다. 위치 인수가 지정된 경우, 각 위치 인수는 표시할 유닛 이름, 해당 패턴과 이름이 일치하는 유닛을 표시하기 위한 glob 패턴, 또는 해당 PID를 포함하는 유닛을 표시하기 위한 PID 중 하나로 처리됩니다. --type=, --state= 또는 --failed를 사용할 때, 유닛은 TYPE 및 ACTIVE 상태로 추가 필터링됩니다.
+
+         이 함수는 사람이 읽을 수 있는 출력을 생성하는 데 사용됩니다. 컴퓨터가 파싱할 수 있는 출력을 찾고 있다면 대신 show를 사용하십시오. 기본적으로 이 함수는 10줄의 출력만 표시하며 터미널 창에 맞게 줄을 생략합니다. 이는 위에서 본 --lines 및 --full로 변경할 수 있습니다. 또한, journalctl --unit=NAME 또는 journalctl --user-unit=NAME은 메시지에 대해 유사한 필터를 사용하며 더 편리할 수 있습니다.
+
+         이 작업은 런타임 상태만 표시한다는 점에 유의하십시오. 즉, 유닛의 현재 호출(실행 중인 경우) 또는 가장 최근 호출(더 이상 실행 중이 아니며 메모리에서 해제되지 않은 경우)에 대한 정보입니다. 이전 호출, 이전 시스템 부팅에서의 호출 또는 이미 메모리에서 해제된 이전 호출에 대한 정보는 journalctl --unit=.을 통해 검색할 수 있습니다.
+
+         systemd는 필요한 경우 유닛을 암묵적으로 로드하므로, status를 실행하는 것만으로는 파일을 로드하려고 시도합니다. 따라서 이 명령어는 무언가가 이미 로드되었는지 여부를 판단하는 데 유용하지 않습니다. 이후 메모리에 유지할 이유가 없다면, 유닛은 작업 완료 후 빠르게 언로드될 수도 있습니다.
+
+         예시 1. systemctl status의 예시 출력
+
+             $ systemctl status bluetooth
+             ● bluetooth.service - Bluetooth service
+                Loaded: loaded (/usr/lib/systemd/system/bluetooth.service; enabled; preset: enabled)
+                Active: active (running) since Wed 2017-01-04 13:54:04 EST; 1 weeks 0 days ago
+                  Docs: man:bluetoothd(8)
+              Main PID: 930 (bluetoothd)
+                Status: "Running"
+                 Tasks: 1
+                Memory: 648.0K
+                   CPU: 435ms
+                CGroup: /system.slice/bluetooth.service
+                        └─930 /usr/lib/bluetooth/bluetoothd
+
+             Jan 12 10:46:45 example.com bluetoothd[8900]: Not enough free handles to register service
+             Jan 12 10:46:45 example.com bluetoothd[8900]: Current Time Service could not be registered
+             Jan 12 10:46:45 example.com bluetoothd[8900]: gatt-time-server: Input/output error (5)
+
+         점 ("●")은 지원되는 터미널에서 유닛 상태를 한눈에 요약하기 위해 색상을 사용합니다. 색상과 함께 모양은 상태에 따라 달라집니다. "inactive" 또는 "maintenance"는 흰색 원 ("○"), "active"는 녹색 점 ("●"), "deactivating"은 흰색 점, "failed" 또는 "error"는 빨간색 십자 ("×"), "reloading" 또는 "refreshing"은 녹색 시계 방향 원형 화살표 ("↻")입니다.
+
+         출력의 "Loaded:" 줄은 유닛이 메모리에 로드된 경우 "loaded"를 표시합니다. "Loaded:"의 다른 가능한 값에는 로드하는 데 문제가 있었을 경우 "error", 이 유닛에 대한 유닛 파일을 찾지 못한 경우 "not-found", 필수 유닛 파일 설정을 구문 분석할 수 없었던 경우 "bad-setting", 유닛 파일이 마스킹된 경우 "masked"가 포함됩니다. 이 줄은 유닛 파일의 경로를 표시하는 것 외에도 활성화 상태를 표시합니다. 활성화된 유닛은 유닛 간의 종속성 네트워크에 포함되며, 따라서 부팅 시 또는 다른 형태의 활성화를 통해 시작됩니다. "masked"의 정의를 포함하여 가능한 모든 활성화 상태의 전체 표는 is-enabled 명령어의 문서를 참조하십시오.
+
+         "Active:" 줄은 활성 상태를 표시합니다. 값은 일반적으로 "active" 또는 "inactive"입니다. Active는 유닛 유형에 따라 시작됨, 바인딩됨, 플러그인됨 등을 의미할 수 있습니다. 유닛은 상태를 변경하는 과정에 있을 수도 있으며, "activating" 또는 "deactivating" 상태를 보고할 수 있습니다. 서비스가 충돌, 오류 코드로 종료되거나 시간 초과와 같이 어떤 방식으로든 실패하면 특별한 "failed" 상태가 진입됩니다. 실패 상태가 진입되면 나중에 참조할 수 있도록 원인이 기록됩니다.
+
+     show [PATTERN...|JOB...]
+         하나 이상의 유닛, 작업 또는 매니저 자체의 속성을 표시합니다. 인수가 지정되지 않으면 매니저의 속성이 표시됩니다. 유닛 이름이 지정되면 유닛의 속성이 표시되고, 작업 ID가 지정되면 작업의 속성이 표시됩니다. 기본적으로 빈 속성은 억제됩니다. --all을 사용하여 해당 속성도 표시하십시오. 표시할 특정 속성을 선택하려면 --property=.를 사용하십시오. 이 명령어는 컴퓨터가 파싱할 수 있는 출력이 필요할 때 사용하도록 의도되었습니다. 형식화된 사람이 읽을 수 있는 출력을 찾고 있다면 status를 사용하십시오.
+
+         systemctl show가 표시하는 많은 속성은 시스템 및 서비스 매니저와 그 유닛 파일의 구성 설정에 직접 매핑됩니다. 이 명령어에 의해 표시되는 속성은 일반적으로 원래 구성 설정의 더 낮은 수준의 정규화된 버전이며 구성 외에 런타임 상태를 노출한다는 점에 유의하십시오. 예를 들어, 서비스 유닛에 대해 표시되는 속성에는 서비스의 현재 메인 프로세스 식별자("MainPID"(런타임 상태))가 포함되며, 마이크로초는 시스템 및 서비스 매니저가 내부적으로 사용하는 정규화된 시간 단위이기 때문에 일치하는 구성 옵션이 "...Sec"으로 끝나는 경우에도 시간 설정은 항상 "...USec" 접미사로 끝나는 속성으로 노출됩니다.
+
+         이러한 많은 속성에 대한 자세한 내용은 이 속성을 지원하는 D-Bus 인터페이스의 문서를 참조하십시오. org.freedesktop.systemd1(5)를 참조하십시오.
+
+     cat PATTERN...
+         하나 이상의 유닛의 백업 파일을 표시합니다. 유닛의 "fragment" 및 "drop-ins"(소스 파일)을 출력합니다. 각 파일 앞에는 파일 이름이 포함된 주석이 있습니다. 이 명령은 디스크에 있는 백업 파일의 내용을 보여주며, 만약 유닛 파일이 디스크에서 업데이트되었고 이후 daemon-reload 명령이 발행되지 않았다면 시스템 매니저의 이 유닛에 대한 이해와 일치하지 않을 수 있다는 점에 유의하십시오.
+
+         버전 209에 추가되었습니다.
+
+     help PATTERN...|PID...
+         사용 가능한 경우 하나 이상의 유닛에 대한 매뉴얼 페이지를 표시합니다. PID가 제공되면 해당 프로세스가 속한 유닛의 매뉴얼 페이지가 표시됩니다.
+
+         버전 185에 추가되었습니다.
+

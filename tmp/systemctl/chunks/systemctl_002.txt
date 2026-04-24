@@ -1,0 +1,165 @@
+     list-timers [PATTERN...]
+         List timer units currently in memory, ordered by the time they  elapse
+         next.  If  one or more PATTERNs are specified, only units matching one
+         of them are shown. Produces output similar to
+
+             NEXT                         LEFT          LAST                         PASSED     UNIT                         ACTIVATES
+             -                            -             Thu 2017-02-23 13:40:29 EST  3 days ago ureadahead-stop.timer        ureadahead-stop.service
+             Sun 2017-02-26 18:55:42 EST  1min 14s left Thu 2017-02-23 13:54:44 EST  3 days ago systemd-tmpfiles-clean.timer systemd-tmpfiles-clean.service
+             Sun 2017-02-26 20:37:16 EST  1h 42min left Sun 2017-02-26 11:56:36 EST  6h ago     apt-daily.timer              apt-daily.service
+             Sun 2017-02-26 20:57:49 EST  2h 3min left  Sun 2017-02-26 11:56:36 EST  6h ago     snapd.refresh.timer          snapd.refresh.service
+
+         NEXT shows the next time the timer will run.
+
+         LEFT shows how long till the next time the timer runs.
+
+         LAST shows the last time the timer ran.
+
+         PASSED shows how long has passed since the timer last ran.
+
+         UNIT shows the name of the timer
+
+         ACTIVATES shows the name the service the timer activates when it runs.
+
+         Also see --all and --state=.
+
+         Added in version 209.
+
+     is-active PATTERN...
+         Check whether any of the specified units are  active  (i.e.  running).
+         Returns  an  exit code 0 if at least one is active, or non-zero other‐
+         wise. Unless --quiet is specified, this will also  print  the  current
+         unit state to standard output.
+
+     is-failed [PATTERN...]
+         Check  whether any of the specified units is in the "failed" state. If
+         no unit is specified, check whether there are any failed units or  or‐
+         dering  cycles,  which corresponds to the "degraded" state returned by
+         is-system-running. Returns an exit code 0 if at least one has  failed,
+         non-zero  otherwise. Unless --quiet is specified, this will also print
+         the current unit or system state to standard output.
+
+         Added in version 197.
+
+     status [PATTERN...|PID...]]
+         Show runtime status information about the whole system or about one or
+         more units followed by most recent log data from the  journal.  If  no
+         positional  arguments  are specified, and no unit filter is given with
+         --type=, --state=, or --failed, shows the status of the whole  system.
+         If  combined with --all, follows that with the status of all units. If
+         positional  arguments  are  specified,  each  positional  argument  is
+         treated as either a unit name to show, or a glob pattern to show units
+         whose  names  match that pattern, or a PID to show the unit containing
+         that PID. When --type=, --state=, or --failed are used, units are  ad‐
+         ditionally filtered by the TYPE and ACTIVE state.
+
+         This  function  is  intended to generate human-readable output. If you
+         are looking for computer-parsable output, use  show  instead.  By  de‐
+         fault,  this  function  only  shows  10 lines of output and ellipsizes
+         lines to fit in the terminal window. This can be changed with  --lines
+         and  --full,  see  above. In addition, journalctl --unit=NAME or jour‐
+         nalctl --user-unit=NAME use a similar filter for messages and might be
+         more convenient.
+
+         Note that this operation only displays runtime status,  i.e.  informa‐
+         tion  about  the  current invocation of the unit (if it is running) or
+         the most recent invocation (if it is not running anymore, and has  not
+         been released from memory). Information about earlier invocations, in‐
+         vocations  from  previous system boots, or prior invocations that have
+         already been released from memory  may  be  retrieved  via  journalctl
+         --unit=.
+
+         systemd  implicitly loads units as necessary, so just running the sta‐
+         tus will attempt to load a file. The command is thus  not  useful  for
+         determining if something was already loaded or not. The units may pos‐
+         sibly  also  be  quickly  unloaded after the operation is completed if
+         there's no reason to keep it in memory thereafter.
+
+         Example 1. Example output from systemctl status
+
+             $ systemctl status bluetooth
+             ● bluetooth.service - Bluetooth service
+                Loaded: loaded (/usr/lib/systemd/system/bluetooth.service; enabled; preset: enabled)
+                Active: active (running) since Wed 2017-01-04 13:54:04 EST; 1 weeks 0 days ago
+                  Docs: man:bluetoothd(8)
+              Main PID: 930 (bluetoothd)
+                Status: "Running"
+                 Tasks: 1
+                Memory: 648.0K
+                   CPU: 435ms
+                CGroup: /system.slice/bluetooth.service
+                        └─930 /usr/lib/bluetooth/bluetoothd
+
+             Jan 12 10:46:45 example.com bluetoothd[8900]: Not enough free handles to register service
+             Jan 12 10:46:45 example.com bluetoothd[8900]: Current Time Service could not be registered
+             Jan 12 10:46:45 example.com bluetoothd[8900]: gatt-time-server: Input/output error (5)
+
+         The dot ("●") uses color on supported terminals to summarize the  unit
+         state at a glance. Along with its color, its shape varies according to
+         its  state:  "inactive" or "maintenance" is a white circle ("○"), "ac‐
+         tive" is a green dot ("●"), "deactivating" is a white dot, "failed" or
+         "error" is a red cross ("×"), and "reloading"  or  "refreshing"  is  a
+         green clockwise circle arrow ("↻").
+
+         The  "Loaded:"  line  in the output will show "loaded" if the unit has
+         been loaded into memory. Other possible values for "Loaded:"  include:
+         "error" if there was a problem loading it, "not-found" if no unit file
+         was  found for this unit, "bad-setting" if an essential unit file set‐
+         ting could not be parsed and  "masked"  if  the  unit  file  has  been
+         masked.  Along  with showing the path to the unit file, this line will
+         also show the enablement state. Enabled units are included in the  de‐
+         pendency  network  between  units, and thus are started at boot or via
+         some other form of activation. See the full table of possible  enable‐
+         ment states —— including the definition of "masked" —— in the documen‐
+         tation for the is-enabled command.
+
+         The  "Active:"  line shows active state. The value is usually "active"
+         or "inactive". Active could mean started, bound, plugged in,  etc  de‐
+         pending  on the unit type. The unit could also be in process of chang‐
+         ing states, reporting a state of  "activating"  or  "deactivating".  A
+         special "failed" state is entered when the service failed in some way,
+         such  as  a  crash,  exiting  with an error code or timing out. If the
+         failed state is entered the cause will be logged for later reference.
+
+     show [PATTERN...|JOB...]
+         Show properties of one or more units, jobs, or the manager itself.  If
+         no  argument is specified, properties of the manager will be shown. If
+         a unit name is specified, properties of the unit are shown, and  if  a
+         job  ID  is  specified,  properties  of the job are shown. By default,
+         empty properties are suppressed. Use --all to show those too.  To  se‐
+         lect specific properties to show, use --property=. This command is in‐
+         tended  to  be used whenever computer-parsable output is required. Use
+         status if you are looking for formatted human-readable output.
+
+         Many properties shown by systemctl show map directly to  configuration
+         settings  of  the  system and service manager and its unit files. Note
+         that the properties shown by the command are generally more low-level,
+         normalized versions of the original configuration settings and  expose
+         runtime  state  in  addition to configuration. For example, properties
+         shown for service units include the  service's  current  main  process
+         identifier  as  "MainPID"  (which is runtime state), and time settings
+         are always exposed as properties ending in the "...USec"  suffix  even
+         if a matching configuration options end in "...Sec", because microsec‐
+         onds  is  the  normalized  time unit used internally by the system and
+         service manager.
+
+         For details about many of these properties, see the  documentation  of
+         the D-Bus interface backing these properties, see org.freedesktop.sys‐
+         temd1(5).
+
+     cat PATTERN...
+         Show  backing  files  of  one or more units. Prints the "fragment" and
+         "drop-ins" (source files) of units. Each file is preceded by a comment
+         which includes the file name. Note that this shows the contents of the
+         backing files on disk, which might not match the system manager's  un‐
+         derstanding  of these units if any unit files were updated on disk and
+         the daemon-reload command was not issued since.
+
+         Added in version 209.
+
+     help PATTERN...|PID...
+         Show manual pages for one or more units, if available.  If  a  PID  is
+         given, the manual pages for the unit the process belongs to are shown.
+
+         Added in version 185.
+

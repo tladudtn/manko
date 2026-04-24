@@ -1,0 +1,116 @@
+SYSTEMCTL(1)                       systemctl                       SYSTEMCTL(1)
+
+NAME
+     systemctl - systemd 시스템 및 서비스 관리자 제어
+
+SYNOPSIS
+     systemctl [OPTIONS...] COMMAND [UNIT...]
+
+DESCRIPTION
+     systemctl은 "systemd" 시스템 및 서비스 관리자의 상태를 검사하고 제어하는 데 사용될 수 있습니다. 이 도구가 관리하는 기본 개념 및 기능에 대한 소개는 systemd(1)을 참조하십시오.
+
+COMMANDS
+     다음 명령이 이해됩니다:
+
+   Unit Commands (Introspection and Modification)
+     list-units [PATTERN...]
+         systemd가 현재 메모리에 가지고 있는 유닛을 나열합니다. 여기에는 직접 참조되거나 종속성을 통해 참조되는 유닛, 애플리케이션에 의해 프로그래밍 방식으로 고정된 유닛, 또는 과거에 활성화되었으나 실패한 유닛이 포함됩니다. 기본적으로 활성화되었거나, 보류 중인 작업을 가지고 있거나, 실패한 유닛만 표시되며, 이는 --all 옵션으로 변경할 수 있습니다. 하나 이상의 PATTERN이 지정되면, 그중 하나와 일치하는 유닛만 표시됩니다. 표시되는 유닛은 해당 옵션이 지정된 경우 --type= 및 --state=에 의해 추가로 필터링됩니다.
+
+         이 명령어는 유닛 템플릿을 표시하지 않고, 유닛 템플릿의 인스턴스만 표시한다는 점에 유의하십시오. 인스턴스화되지 않은 유닛 템플릿은 실행할 수 없으므로 이 명령어의 출력에 절대 나타나지 않습니다. 구체적으로 이는 foo@.service가 인스턴스화되지 않는 한 (예: foo@bar.service로) 이 목록에 나타나지 않음을 의미합니다. 설치된 유닛 템플릿 파일을 나열하려면 list-unit-files(아래 참조)를 사용하십시오.
+
+         다음과 유사한 출력을 생성합니다:
+
+               UNIT                         LOAD   ACTIVE SUB     DESCRIPTION
+               sys-module-fuse.device       loaded active plugged /sys/module/fuse
+               -.mount                      loaded active mounted Root Mount
+               boot-efi.mount               loaded active mounted /boot/efi
+               systemd-journald.service     loaded active running Journal Service
+               systemd-logind.service       loaded active running Login Service
+             ● user@1000.service            loaded failed failed  User Manager for UID 1000
+               ...
+               systemd-tmpfiles-clean.timer loaded active waiting Daily Cleanup of Temporary Directories
+
+             LOAD   = 유닛 정의가 올바르게 로드되었는지 여부를 반영합니다.
+             ACTIVE = 높은 수준의 유닛 활성화 상태, 즉 SUB의 일반화입니다.
+             SUB    = 낮은 수준의 유닛 활성화 상태이며, 값은 유닛 유형에 따라 다릅니다.
+
+             123개의 로드된 유닛이 나열되었습니다. --all을 사용하여 로드되었지만 비활성인 유닛도 확인하십시오.
+             모든 설치된 유닛 파일을 표시하려면 'systemctl list-unit-files'를 사용하십시오.
+
+         터미널이 지원하는 경우 헤더와 주어진 유형의 마지막 유닛은 밑줄이 그어집니다. 마스킹되었거나, 발견되지 않았거나, 기타 이유로 실패한 서비스 옆에는 색상 점이 표시됩니다.
+
+         LOAD 열은 로드 상태를 보여주며, loaded, not-found, bad-setting, error, masked 중 하나입니다. ACTIVE 열은 일반적인 유닛 상태를 보여주며, 다음 중 하나입니다:
+
+         Table 1. Unit ACTIVE 상태
+         ┌──────────────┬────────────────────────────┐
+         │ State        │ Description                │
+         ├──────────────┼────────────────────────────┤
+         │ active       │ 시작됨, 바인딩됨, 플러그됨 │
+         │              │ in, ..., 유닛 유형에 따라 다름. │
+         ├──────────────┼────────────────────────────┤
+         │ inactive     │ 중지됨, 바인딩 해제됨, 플러그 해제됨, ..., 유닛 유형에 따라 다름. │
+         ├──────────────┼────────────────────────────┤
+         │ failed       │ inactive와 유사하지만, 유닛이 어떤 방식으로든 실패한 경우 (프로세스가 종료 시 오류 코드를 반환, 충돌, 작업 시간 초과 또는 너무 많은 재시작 후). │
+         ├──────────────┼────────────────────────────┤
+         │ activating   │ inactive에서 active로 변경 중.                    │
+         ├──────────────┼────────────────────────────┤
+         │ deactivating │ active에서 inactive로 변경 중.                  │
+         ├──────────────┼────────────────────────────┤
+         │ maintenance  │ 유닛이 inactive 상태이며 유지보수 작업이 진행 중인 경우.               │
+         ├──────────────┼────────────────────────────┤
+         │ reloading    │ 유닛이 active 상태이며 구성 파일을 다시 로드 중인 경우.                      │
+         ├──────────────┼────────────────────────────┤
+         │ refreshing   │ 유닛이 active 상태이며 네임스페이스 내에서 새 마운트가 활성화 중인 경우.          │
+         └──────────────┴────────────────────────────┘
+
+         SUB 열은 유닛의 유닛 유형별 상세 상태를 보여주며, 가능한 값은 유닛 유형에 따라 다릅니다. 가능한 LOAD, ACTIVE, SUB 상태 목록은 고정되어 있지 않으며, 새로운 systemd 릴리스에서는 값을 추가하거나 제거할 수 있습니다.
+
+             systemctl --state=help
+
+         이 명령은 현재 가능한 값 세트를 표시하는 데 사용될 수 있습니다.
+
+         이것이 기본 명령어입니다.
+
+     list-automounts [PATTERN...]
+         현재 메모리에 있는 자동 마운트 유닛을 마운트 경로 순서로 나열합니다. 하나 이상의 PATTERN이 지정되면, 그중 하나와 일치하는 자동 마운트 유닛만 표시됩니다. 다음과 유사한 출력을 생성합니다:
+
+             WHAT        WHERE                    MOUNTED IDLE TIMEOUT UNIT
+             /dev/sdb1   /mnt/test                no      120s         mnt-test.automount
+             binfmt_misc /proc/sys/fs/binfmt_misc yes     0            proc-sys-fs-binfmt_misc.automount
+
+             2개의 자동 마운트가 나열되었습니다.
+
+         또한 --show-types, --all, 및 --state=를 참조하십시오.
+
+         버전 252에 추가되었습니다.
+
+     list-paths [PATTERN...]
+         현재 메모리에 있는 경로 유닛을 경로 순서로 나열합니다. 하나 이상의 PATTERN이 지정되면, 그중 하나와 일치하는 경로 유닛만 표시됩니다. 다음과 유사한 출력을 생성합니다:
+
+             PATH                           CONDITION         UNIT                               ACTIVATES
+             /run/systemd/ask-password      DirectoryNotEmpty systemd-ask-password-plymouth.path systemd-ask-password-plymouth.service
+             /run/systemd/ask-password      DirectoryNotEmpty systemd-ask-password-wall.path     systemd-ask-password-wall.service
+             /var/cache/cups/org.cups.cupsd PathExists        cups.path                          cups.service
+
+             3개의 경로가 나열되었습니다.
+
+         또한 --show-types, --all, 및 --state=를 참조하십시오.
+
+         버전 254에 추가되었습니다.
+
+     list-sockets [PATTERN...]
+         현재 메모리에 있는 소켓 유닛을 리스닝 주소 순서로 나열합니다. 하나 이상의 PATTERN이 지정되면, 그중 하나와 일치하는 소켓 유닛만 표시됩니다. 다음과 유사한 출력을 생성합니다:
+
+             LISTEN           UNIT                        ACTIVATES
+             kobject-uevent 1 systemd-udevd-kernel.socket systemd-udevd.service
+             /dev/rfkill      systemd-rfkill.socket       systemd-rfkill.service
+             ...
+
+             5개의 소켓이 나열되었습니다.
+
+         참고: 주소에 공백이 포함될 수 있으므로 이 출력은 프로그램적 소비에 적합하지 않습니다.
+
+         또한 --show-types, --all, 및 --state=를 참조하십시오.
+
+         버전 202에 추가되었습니다.
+

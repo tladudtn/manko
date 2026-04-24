@@ -1,0 +1,163 @@
+     -M, --machine=
+         Execute operation on a local container. Specify a  container  name  to
+         connect  to,  optionally  prefixed  by a user name to connect as and a
+         separating "@" character. If the special string  ".host"  is  used  in
+         place  of the container name, a connection to the local system is made
+         (which is useful to connect to a specific  user's  user  bus:  "--user
+         --machine=lennart@.host").  If the "@" syntax is not used, the connec‐
+         tion is made as root user. If the "@" syntax is used either  the  left
+         hand  side  or  the  right  hand side may be omitted (but not both) in
+         which case the local user name and ".host" are implied.
+
+     -C, --capsule=
+         Execute operation on a capsule. Specify a capsule name to connect  to.
+         See capsule@.service(5) for details about capsules.
+
+         Added in version 256.
+
+     --no-ask-password
+         Do not query the user for authentication for privileged operations.
+
+     --no-pager
+         Do not pipe output into a pager.
+
+     --legend=BOOL
+         Enable  or disable printing of the legend, i.e. column headers and the
+         footer with hints. The legend is printed by default,  unless  disabled
+         with --quiet or similar.
+
+     -h, --help
+         Print a short help text and exit.
+
+     --version
+         Print a short version string and exit.
+
+EXIT STATUS
+     On success, 0 is returned, a non-zero failure code otherwise.
+
+     systemctl  uses  the  return  codes  defined  by  LSB,  as  defined in LSB
+     3.0.0[3].
+
+     Table 5. LSB return codes
+     ┌───────┬──────────────────────┬──────────────────────┐
+     │ Value │ Description in LSB   │ Use in systemd       │
+     ├───────┼──────────────────────┼──────────────────────┤
+     │ 0     │ "program is  running │ unit is active       │
+     │       │ or service is OK"    │                      │
+     ├───────┼──────────────────────┼──────────────────────┤
+     │ 1     │ "program is dead and │ unit   not    failed │
+     │       │ /var/run   pid  file │ (used by is-failed)  │
+     │       │ exists"              │                      │
+     ├───────┼──────────────────────┼──────────────────────┤
+     │ 2     │ "program is dead and │ unused               │
+     │       │ /var/lock  lock file │                      │
+     │       │ exists"              │                      │
+     ├───────┼──────────────────────┼──────────────────────┤
+     │ 3     │ "program is not run‐ │ unit is not active   │
+     │       │ ning"                │                      │
+     ├───────┼──────────────────────┼──────────────────────┤
+     │ 4     │ "program or  service │ no such unit         │
+     │       │ status is unknown"   │                      │
+     └───────┴──────────────────────┴──────────────────────┘
+
+     The  mapping of LSB service states to systemd unit states is imperfect, so
+     it is better to not rely on those return values but to look  for  specific
+     unit states and substates instead.
+
+ENVIRONMENT
+     $SYSTEMD_EDITOR
+         Editor  to  use  when editing units; overrides $EDITOR and $VISUAL. If
+         neither $SYSTEMD_EDITOR nor $EDITOR nor $VISUAL are present or  if  it
+         is set to an empty string or if their execution failed, systemctl will
+         try  to  execute well known editors in this order: editor(1), nano(1),
+         vim(1), vi(1).
+
+         Added in version 218.
+
+     $SYSTEMD_LOG_LEVEL
+         The maximum log level of emitted messages (messages with a higher  log
+         level,  i.e.  less  important  ones,  will  be  suppressed).  Takes  a
+         comma-separated list of values. A value may be either one of (in order
+         of decreasing importance) emerg, alert, crit,  err,  warning,  notice,
+         info,  debug, or an integer in the range 0...7. See syslog(3) for more
+         information. Each value may optionally be prefixed with  one  of  con‐
+         sole,  syslog,  kmsg or journal followed by a colon to set the maximum
+         log level for that specific log  target  (e.g.   SYSTEMD_LOG_LEVEL=de‐
+         bug,console:info  specifies  to log at debug level except when logging
+         to the console which should be at info level). Note  that  the  global
+         maximum  log level takes priority over any per target maximum log lev‐
+         els.
+
+     $SYSTEMD_LOG_COLOR
+         A boolean. If true, messages written to the tty will  be  colored  ac‐
+         cording to priority.
+
+         This  setting is only useful when messages are written directly to the
+         terminal, because journalctl(1) and other tools that display logs will
+         color messages based on the log level on their own.
+
+     $SYSTEMD_LOG_TIME
+         A boolean. If true, console log messages will be prefixed with a time‐
+         stamp.
+
+         This setting is only useful when messages are written directly to  the
+         terminal or a file, because journalctl(1) and other tools that display
+         logs will attach timestamps based on the entry metadata on their own.
+
+     $SYSTEMD_LOG_LOCATION
+         A boolean. If true, messages will be prefixed with a filename and line
+         number in the source code where the message originates.
+
+         Note  that  the  log location is often attached as metadata to journal
+         entries anyway. Including it directly in the message text  can  never‐
+         theless be convenient when debugging programs.
+
+     $SYSTEMD_LOG_TARGET
+         The  destination for log messages. One of console (log to the attached
+         tty), console-prefixed (log to the attached tty but with prefixes  en‐
+         coding  the  log level and "facility", see syslog(3), kmsg (log to the
+         kernel circular log buffer),  journal  (log  to  the  journal),  jour‐
+         nal-or-kmsg  (log to the journal if available, and to kmsg otherwise),
+         auto (determine the appropriate  log  target  automatically,  the  de‐
+         fault), null (disable log output).
+
+     $SYSTEMD_PAGER, $PAGER
+         Pager  to use when --no-pager is not given.  $SYSTEMD_PAGER is used if
+         set; otherwise $PAGER is used. If neither  $SYSTEMD_PAGER  nor  $PAGER
+         are  set,  a set of well-known pager implementations is tried in turn,
+         including less(1) and more(1), until one is found. If no pager  imple‐
+         mentation  is  discovered, no pager is invoked. Setting those environ‐
+         ment variables to an empty string or the value "cat" is equivalent  to
+         passing --no-pager.
+
+         Note:  if  $SYSTEMD_PAGERSECURE  is not set, $SYSTEMD_PAGER and $PAGER
+         can only be used to disable the pager (with "cat" or ""), and are oth‐
+         erwise ignored.
+
+     $SYSTEMD_LESS
+         Override the options passed to less (by default "FRSXMK").
+
+         Users might want to change two options in particular:
+
+         K
+             This option instructs the pager to exit immediately when Ctrl+C is
+             pressed. To allow less to handle Ctrl+C itself to switch  back  to
+             the pager command prompt, unset this option.
+
+             If  the value of $SYSTEMD_LESS does not include "K", and the pager
+             that is invoked is less, Ctrl+C will be ignored by the executable,
+             and needs to be handled by the pager.
+
+         X
+             This option instructs the pager to not send termcap initialization
+             and deinitialization strings to the terminal. It is set by default
+             to allow command output to remain visible in the terminal even af‐
+             ter the pager exits. Nevertheless, this prevents some pager  func‐
+             tionality  from  working,  in  particular  paged  output cannot be
+             scrolled with the mouse.
+
+         Note that setting the regular $LESS environment variable has no effect
+         for less invocations by systemd tools.
+
+         See less(1) for more discussion.
+

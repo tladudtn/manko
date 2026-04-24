@@ -1,0 +1,154 @@
+     clean PATTERN...
+         Remove the configuration, state, cache, logs, runtime or file descrip‐
+         tor store data of the specified units. Use  --what=  to  select  which
+         kind  of resource to remove. For service units this may be used to re‐
+         move the directories configured with ConfigurationDirectory=, StateDi‐
+         rectory=, CacheDirectory=, LogsDirectory= and  RuntimeDirectory=,  see
+         systemd.exec(5) for details. It may also be used to clear the file de‐
+         scriptor  store  as  enabled  via  FileDescriptorStoreMax=,  see  sys‐
+         temd.service(5) for details. For timer units this may be used to clear
+         out  the  persistent  timestamp  data  if  Persistent=  is  used   and
+         --what=state  is selected, see systemd.timer(5). This command only ap‐
+         plies to units that use either of these settings. If  --what=  is  not
+         specified,  the  cache and runtime data as well as the file descriptor
+         store are removed (as these three types of resources are generally re‐
+         dundant and reproducible on the next invocation of the unit). Multiple
+         values can be separated by commas. Note that the specified units  must
+         be stopped to invoke this operation.
+
+         Table 2.  Possible values for --what=
+         ┌─────────────────┬────────────────────────────┐
+         │ Value           │ Unit Setting               │
+         ├─────────────────┼────────────────────────────┤
+         │ "runtime"       │ RuntimeDirectory=          │
+         ├─────────────────┼────────────────────────────┤
+         │ "state"         │ StateDirectory=            │
+         ├─────────────────┼────────────────────────────┤
+         │ "cache"         │ CacheDirectory=            │
+         ├─────────────────┼────────────────────────────┤
+         │ "logs"          │ LogsDirectory=             │
+         ├─────────────────┼────────────────────────────┤
+         │ "configuration" │ ConfigurationDirectory=    │
+         ├─────────────────┼────────────────────────────┤
+         │ "fdstore"       │ FileDescriptorStorePre‐    │
+         │                 │ serve=                     │
+         ├─────────────────┼────────────────────────────┤
+         │ "all"           │ All of the above           │
+         ├─────────────────┼────────────────────────────┤
+         │ "help"          │ Show  the supported values │
+         │                 │ and exit                   │
+         └─────────────────┴────────────────────────────┘
+
+         Added in version 243.
+
+     freeze PATTERN...
+         Freeze one or more units specified on the command  line  using  cgroup
+         freezer
+
+         Freezing the unit will cause all processes contained within the cgroup
+         corresponding  to the unit to be suspended. Being suspended means that
+         unit's processes will not be scheduled to run  on  CPU  until  thawed.
+         Note  that  this command is supported only on systems that use unified
+         cgroup hierarchy. Unit is automatically thawed just before we  execute
+         a job against the unit, e.g. before the unit is stopped.
+
+         Added in version 246.
+
+     thaw PATTERN...
+         Thaw (unfreeze) one or more units specified on the command line.
+
+         This  is  the  inverse operation to the freeze command and resumes the
+         execution of processes in the unit's cgroup.
+
+         Added in version 246.
+
+     set-property UNIT PROPERTY=VALUE...
+         Set the specified unit properties at runtime where this is  supported.
+         This  allows  changing  configuration parameter properties such as re‐
+         source control settings at runtime. Not all properties may be  changed
+         at  runtime,  but  many  resource control settings (primarily those in
+         systemd.resource-control(5)) may. The changes are applied immediately,
+         and stored on disk for future boots, unless --runtime  is  passed,  in
+         which  case  the settings only apply until the next reboot. The syntax
+         of the property assignment follows closely the syntax  of  assignments
+         in unit files.
+
+         Example: systemctl set-property foobar.service CPUWeight=200
+
+         If the specified unit appears to be inactive, the changes will be only
+         stored  on  disk  as described previously hence they will be effective
+         when the unit will be started.
+
+         Note that this command allows changing multiple properties at the same
+         time, which is preferable over setting them individually.
+
+         Example: systemctl set-property foobar.service  CPUWeight=200  Memory‐
+         Max=2G IPAccounting=yes
+
+         Like with unit file configuration settings, assigning an empty setting
+         usually resets a property to its defaults.
+
+         Example: systemctl set-property avahi-daemon.service IPAddressDeny=
+
+         Added in version 206.
+
+     bind UNIT PATH [PATH]
+         Bind-mounts  a  file  or  directory  from  the host into the specified
+         unit's mount namespace. The first path argument is the source file  or
+         directory  on  the  host,  the second path argument is the destination
+         file or directory in the unit's mount namespace. When  the  latter  is
+         omitted,  the  destination  path  in the unit's mount namespace is the
+         same  as  the  source  path  on  the  host.  When  combined  with  the
+         --read-only  switch,  a read-only bind mount is created. When combined
+         with the --mkdir switch, the destination path is first created  before
+         the mount is applied.
+
+         Note  that  this option is currently only supported for units that run
+         within a  mount  namespace  (e.g.:  with  RootImage=,  PrivateMounts=,
+         etc.). This command supports bind-mounting directories, regular files,
+         device  nodes,  AF_UNIX socket nodes, as well as FIFOs. The bind mount
+         is ephemeral, and it is undone as soon as the current unit process ex‐
+         ists. Note that the namespace mentioned here,  where  the  bind  mount
+         will  be  added  to,  is  the one where the main service process runs.
+         Other processes (those exececuted by ExecReload=, ExecStartPre=, etc.)
+         run in distinct namespaces.
+
+         If supported by the kernel, any prior mount  on  the  selected  target
+         will  be  replaced by the new mount. If not supported, any prior mount
+         will be over-mounted, but remain pinned and inaccessible.
+
+         Added in version 248.
+
+     mount-image UNIT IMAGE [PATH [PARTITION_NAME:MOUNT_OPTIONS]]
+         Mounts an image from the host into the specified  unit's  mount  name‐
+         space.  The  first  path argument is the source image on the host, the
+         second path argument is the destination directory in the unit's  mount
+         namespace (i.e. inside RootImage=/RootDirectory=). The following argu‐
+         ment,  if  any, is interpreted as a colon-separated tuple of partition
+         name and comma-separated list of mount options for that partition. The
+         format is the same as the service MountImages= setting. When  combined
+         with  the --read-only switch, a ready-only mount is created. When com‐
+         bined with the --mkdir switch, the destination path is  first  created
+         before the mount is applied.
+
+         Note  that  this option is currently only supported for units that run
+         within a mount namespace (i.e. with RootImage=, PrivateMounts=, etc.).
+         Note that the namespace mentioned here where the image mount  will  be
+         added  to,  is  the one where the main service process runs. Note that
+         the namespace mentioned here, where the bind mount will be  added  to,
+         is the one where the main service process runs. Other processes (those
+         exececuted  by ExecReload=, ExecStartPre=, etc.) run in distinct name‐
+         spaces.
+
+         If supported by the kernel, any prior mount  on  the  selected  target
+         will  be  replaced by the new mount. If not supported, any prior mount
+         will be over-mounted, but remain pinned and inaccessible.
+
+         Example:
+
+             systemctl mount-image foo.service /tmp/img.raw /var/lib/image root:ro,nosuid
+
+             systemctl mount-image --mkdir bar.service /tmp/img.raw /var/lib/baz/img
+
+         Added in version 248.
+

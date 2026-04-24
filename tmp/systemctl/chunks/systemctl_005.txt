@@ -1,0 +1,140 @@
+     service-log-level SERVICE [LEVEL]
+         If the LEVEL argument is not given, print the current log level as re‐
+         ported by service SERVICE.
+
+         If the optional argument LEVEL is provided, then  change  the  current
+         log  level  of the service to LEVEL. The log level should be a typical
+         syslog log level, i.e. a value in  the  range  0...7  or  one  of  the
+         strings  emerg,  alert,  crit,  err, warning, notice, info, debug; see
+         syslog(3) for details.
+
+         The service must have the appropriate BusName=destination property and
+         also implement the generic  org.freedesktop.LogControl1(5)  interface.
+         (systemctl   will  use  the  generic  D-Bus  protocol  to  access  the
+         org.freedesktop.LogControl1.LogLevel interface for the D-Bus name des‐
+         tination.)
+
+         Added in version 247.
+
+     service-log-target SERVICE [TARGET]
+         If the TARGET argument is not given, print the current log  target  as
+         reported by service SERVICE.
+
+         If  the  optional argument TARGET is provided, then change the current
+         log target of the service to TARGET. The log target should be  one  of
+         the  strings  console  (for log output to the service's standard error
+         stream), kmsg (for log output to the kernel log buffer), journal  (for
+         log  output  to  systemd-journald.service(8)  using the native journal
+         protocol), syslog  (for  log  output  to  the  classic  syslog  socket
+         /dev/log),  null  (for no log output whatsoever) or auto (for an auto‐
+         matically determined choice, typically equivalent to  console  if  the
+         service is invoked interactively, and journal or syslog otherwise).
+
+         For  most  services, only a small subset of log targets make sense. In
+         particular, most "normal"  services  should  only  implement  console,
+         journal,  and  null.  Anything  else is only appropriate for low-level
+         services that are active in very early boot before proper  logging  is
+         established.
+
+         The service must have the appropriate BusName=destination property and
+         also  implement  the generic org.freedesktop.LogControl1(5) interface.
+         (systemctl  will  use  the  generic  D-Bus  protocol  to  access   the
+         org.freedesktop.LogControl1.LogLevel interface for the D-Bus name des‐
+         tination.)
+
+         Added in version 247.
+
+     reset-failed [PATTERN...]
+         Reset the "failed" state of the specified units, or if no unit name is
+         passed,  reset  the  state of all units. When a unit fails in some way
+         (i.e. process exiting with non-zero error code, terminating abnormally
+         or timing out), it will automatically enter the "failed" state and its
+         exit code and status is recorded for introspection by the  administra‐
+         tor  until  the  service is stopped/re-started or reset with this com‐
+         mand.
+
+         In addition to resetting the "failed" state of a unit it  also  resets
+         various other per-unit properties: the start rate limit counter of all
+         unit  types  is  reset  to  zero, as is the restart counter of service
+         units. Thus, if a unit's start limit (as configured with StartLimitIn‐
+         tervalSec=/StartLimitBurst=) is hit and the unit refuses to be started
+         again, use this command to make it startable again.
+
+     whoami [PID...]
+         Returns the units the processes referenced by the given PIDs belong to
+         (one per line). If no PID is specified returns the unit the  systemctl
+         command is invoked in.
+
+         Added in version 254.
+
+   Unit File Commands
+     list-unit-files [PATTERN...]
+         List unit files installed on the system, in combination with their en‐
+         ablement  state  (as  reported by is-enabled). If one or more PATTERNs
+         are specified, only unit files whose name  matches  one  of  them  are
+         shown (patterns matching unit file system paths are not supported).
+
+         Unlike list-units this command will list template units in addition to
+         explicitly instantiated units.
+
+         Added in version 233.
+
+     enable UNIT..., enable PATH...
+         Enable  one or more units or unit instances. This will create a set of
+         symlinks, as encoded in the [Install] sections of the  indicated  unit
+         files.  After  the symlinks have been created, the system manager con‐
+         figuration is reloaded (in a way equivalent to daemon-reload), in  or‐
+         der  to  ensure  the  changes are taken into account immediately. Note
+         that this does not have the effect of also starting any of  the  units
+         being enabled. If this is desired, combine this command with the --now
+         switch, or invoke start with appropriate arguments later. Note that in
+         case of unit instance enablement (i.e. enablement of units of the form
+         foo@bar.service),  symlinks named the same as instances are created in
+         the unit configuration directory, however they  point  to  the  single
+         template unit file they are instantiated from.
+
+         This  command  expects  either valid unit names (in which case various
+         unit file directories are automatically searched for unit  files  with
+         appropriate  names),  or  absolute  paths to unit files (in which case
+         these files are read directly). If a specified unit  file  is  located
+         outside  of  the usual unit file directories, an additional symlink is
+         created, linking it into the unit configuration path, thus ensuring it
+         is found when requested by commands such as  start.  The  file  system
+         where  the  linked unit files are located must be accessible when sys‐
+         temd is started (e.g. anything underneath /home/ or /var/ is  not  al‐
+         lowed, unless those directories are located on the root file system).
+
+         This command will print the file system operations executed. This out‐
+         put may be suppressed by passing --quiet.
+
+         Note  that  this  operation creates only the symlinks suggested in the
+         [Install] section of the unit files. While this command is the  recom‐
+         mended  way to manipulate the unit configuration directory, the admin‐
+         istrator is free to make additional changes manually by placing or re‐
+         moving symlinks below this directory. This is particularly  useful  to
+         create  configurations that deviate from the suggested default instal‐
+         lation. In this case, the administrator must make sure to invoke  dae‐
+         mon-reload  manually  as necessary, in order to ensure the changes are
+         taken into account.
+
+         When using this operation on  units  without  install  information,  a
+         warning  about  it  is  shown.   --no-warn can be used to suppress the
+         warning.
+
+         Enabling units should  not  be  confused  with  starting  (activating)
+         units,  as  done  by the start command. Enabling and starting units is
+         orthogonal: units may be enabled without  being  started  and  started
+         without  being  enabled.  Enabling  simply hooks the unit into various
+         suggested places (for example,  so  that  the  unit  is  automatically
+         started  on boot or when a particular kind of hardware is plugged in).
+         Starting actually spawns  the  daemon  process  (in  case  of  service
+         units), or binds the socket (in case of socket units), and so on.
+
+         Depending on whether --system, --user, --runtime, or --global is spec‐
+         ified,  this  enables  the  unit  for the system, for the calling user
+         only, for only this boot of the system, or for all  future  logins  of
+         all users. Note that in the last case, no systemd daemon configuration
+         is reloaded.
+
+         Using enable on masked units is not supported and results in an error.
+

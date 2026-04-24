@@ -1,0 +1,159 @@
+     is-system-running
+         Checks whether the system is operational. This returns  success  (exit
+         code  0)  when the system is fully up and running, specifically not in
+         startup, shutdown or maintenance mode, and with  no  failed  services.
+         Failure  is  returned otherwise (exit code non-zero). In addition, the
+         current state is printed in a short string to standard output, see the
+         table below. Use --quiet to suppress this output.
+
+         Use --wait to wait until the boot process is completed before printing
+         the current state and  returning  the  appropriate  error  status.  If
+         --wait  is  in  use,  states  initializing or starting will not be re‐
+         ported, instead the command will block until a later  state  (such  as
+         running or degraded) is reached.
+
+         Table 4. is-system-running output
+         ┌──────────────┬──────────────────────┬───────────┐
+         │ Name         │ Description          │ Exit Code │
+         ├──────────────┼──────────────────────┼───────────┤
+         │ initializing │ Early bootup, before │ > 0       │
+         │              │ basic.target      is │           │
+         │              │ reached or the main‐ │           │
+         │              │ tenance  state   en‐ │           │
+         │              │ tered.               │           │
+         ├──────────────┼──────────────────────┼───────────┤
+         │ starting     │ Late  bootup, before │ > 0       │
+         │              │ the  job  queue  be‐ │           │
+         │              │ comes  idle  for the │           │
+         │              │ first time,  or  one │           │
+         │              │ of  the  rescue tar‐ │           │
+         │              │ gets are reached.    │           │
+         ├──────────────┼──────────────────────┼───────────┤
+         │ running      │ The system is  fully │ 0         │
+         │              │ operational.         │           │
+         ├──────────────┼──────────────────────┼───────────┤
+         │ degraded     │ The system is opera‐ │ > 0       │
+         │              │ tional  but  one  or │           │
+         │              │ more units failed.   │           │
+         ├──────────────┼──────────────────────┼───────────┤
+         │ maintenance  │ The rescue or  emer‐ │ > 0       │
+         │              │ gency  target is ac‐ │           │
+         │              │ tive.                │           │
+         ├──────────────┼──────────────────────┼───────────┤
+         │ stopping     │ The manager is shut‐ │ > 0       │
+         │              │ ting down.           │           │
+         ├──────────────┼──────────────────────┼───────────┤
+         │ offline      │ The manager  is  not │ > 0       │
+         │              │ running.    Specifi‐ │           │
+         │              │ cally, this  is  the │           │
+         │              │ operational state if │           │
+         │              │ an incompatible pro‐ │           │
+         │              │ gram  is  running as │           │
+         │              │ system manager  (PID │           │
+         │              │ 1).                  │           │
+         ├──────────────┼──────────────────────┼───────────┤
+         │ unknown      │ The      operational │ > 0       │
+         │              │ state could  not  be │           │
+         │              │ determined,  due  to │           │
+         │              │ lack of resources or │           │
+         │              │ another error cause. │           │
+         └──────────────┴──────────────────────┴───────────┘
+
+         Added in version 215.
+
+     default
+         Enter default mode.  This  is  equivalent  to  systemctl  isolate  de‐
+         fault.target. This operation is blocking by default, use --no-block to
+         request asynchronous behavior.
+
+     rescue
+         Enter rescue mode. This is equivalent to systemctl isolate rescue.tar‐
+         get.  This operation is blocking by default, use --no-block to request
+         asynchronous behavior.
+
+     emergency
+         Enter emergency mode. This is equivalent to  systemctl  isolate  emer‐
+         gency.target. This operation is blocking by default, use --no-block to
+         request asynchronous behavior.
+
+     halt
+         Shut  down and halt the system. This is mostly equivalent to systemctl
+         start halt.target --job-mode=replace-irreversibly --no-block, but also
+         prints a wall message to all users. This command is  asynchronous;  it
+         will  return after the halt operation is enqueued, without waiting for
+         it to complete. Note that this operation will simply halt the OS  ker‐
+         nel  after shutting down, leaving the hardware powered on. Use system‐
+         ctl poweroff for powering off the system (see below).
+
+         If combined with --force, shutdown of all running services is skipped,
+         however all processes are killed and all file systems are unmounted or
+         mounted read-only, immediately followed by the system halt. If --force
+         is specified twice, the operation is immediately executed without ter‐
+         minating any processes or unmounting any file systems. This may result
+         in data loss. Note that when --force is specified twice the halt oper‐
+         ation is executed by systemctl itself, and the system manager  is  not
+         contacted.  This means the command should succeed even when the system
+         manager has crashed.
+
+         If combined with --when=, shutdown will be scheduled after  the  given
+         timestamp. And --when=cancel will cancel the shutdown.
+
+     poweroff
+         Shut  down and power-off the system. This is mostly equivalent to sys‐
+         temctl    start    poweroff.target     --job-mode=replace-irreversibly
+         --no-block,  but also prints a wall message to all users. This command
+         is asynchronous; it will return after the power-off operation  is  en‐
+         queued, without waiting for it to complete.
+
+         This command honors --force and --when= in a similar way as halt.
+
+     reboot
+         Shut down and reboot the system.
+
+         This  command  is  mostly  equivalent to systemctl start reboot.target
+         --job-mode=replace-irreversibly --no-block, but  also  prints  a  wall
+         message to all users. This command is asynchronous; it will return af‐
+         ter  the  reboot operation is enqueued, without waiting for it to com‐
+         plete.
+
+         If the switch --reboot-argument= is given, it will be  passed  as  the
+         optional argument to the reboot(2) system call.
+
+         Options       --boot-loader-entry=,      --boot-loader-menu=,      and
+         --firmware-setup can be used to select what to do  after  the  reboot.
+         See the descriptions of those options for details.
+
+         This command honors --force and --when= in a similar way as halt.
+
+         If a new kernel has been loaded via kexec --load, a kexec will be per‐
+         formed  instead  of a reboot, unless "SYSTEMCTL_SKIP_AUTO_KEXEC=1" has
+         been set. If a new root file system has been  set  up  on  "/run/next‐
+         root/",  a  soft-reboot  will be performed instead of a reboot, unless
+         "SYSTEMCTL_SKIP_AUTO_SOFT_REBOOT=1" has been set.
+
+         Added in version 246.
+
+     kexec
+         Shut down and reboot the system via kexec. This command  will  load  a
+         kexec kernel if one was not loaded yet or fail. A kernel may be loaded
+         earlier  by  a  separate step, this is particularly useful if a custom
+         initrd or additional kernel command  line  options  are  desired.  The
+         --force  can  be used to continue without a kexec kernel, i.e. to per‐
+         form a normal reboot. The final reboot step is equivalent to systemctl
+         start kexec.target --job-mode=replace-irreversibly --no-block.
+
+         To load a kernel, an enumeration is  performed  following  the  UAPI.1
+         Boot  Loader  Specification[1],  and the default boot entry is loaded.
+         For this step to succeed, the system must be using UEFI and  the  boot
+         loader  entries must be configured appropriately.  bootctl list may be
+         used to list boot entries, see bootctl(1).
+
+         This command is asynchronous; it will return after the  reboot  opera‐
+         tion is enqueued, without waiting for it to complete.
+
+         This command honors --force and --when= similarly to halt.
+
+         If a new kernel has been loaded via kexec --load, a kexec will be per‐
+         formed  when  reboot  is invoked, unless "SYSTEMCTL_SKIP_AUTO_KEXEC=1"
+         has been set.
+

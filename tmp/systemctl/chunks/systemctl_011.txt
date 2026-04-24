@@ -1,0 +1,164 @@
+     soft-reboot
+         Shut down and reboot userspace. This is equivalent to systemctl  start
+         soft-reboot.target  --job-mode=replace-irreversibly  --no-block.  This
+         command is asynchronous; it will return after the reboot operation  is
+         enqueued, without waiting for it to complete.
+
+         This command honors --force and --when= in a similar way as halt.
+
+         This operation only reboots userspace, leaving the kernel running. See
+         systemd-soft-reboot.service(8) for details.
+
+         If  a  new  root  file  system  has been set up on "/run/nextroot/", a
+         soft-reboot will be performed when reboot is invoked, unless  "SYSTEM‐
+         CTL_SKIP_AUTO_SOFT_REBOOT=1" has been set.
+
+         Added in version 254.
+
+     exit [EXIT_CODE]
+         Ask  the service manager to quit. This is only supported for user ser‐
+         vice managers (i.e. in conjunction with the --user option) or in  con‐
+         tainers and is equivalent to poweroff otherwise. This command is asyn‐
+         chronous; it will return after the exit operation is enqueued, without
+         waiting for it to complete.
+
+         The  service  manager  will  exit  with  the  specified  exit code, if
+         EXIT_CODE is passed.
+
+         Added in version 227.
+
+     switch-root [ROOT [INIT]]
+         Switches to a different root directory and executes a new system  man‐
+         ager  process  below  it.  This is intended for use in the initrd, and
+         will transition from  the  initrd's  system  manager  process  (a.k.a.
+         "init"  process,  PID  1)  to the main system manager process which is
+         loaded from the actual host root files system. This call takes two ar‐
+         guments: the directory that is to become the new root  directory,  and
+         the  path  to the new system manager binary below it to execute as PID
+         1. If both are omitted or the former is an empty string it defaults to
+         /sysroot/. If the latter is omitted or is an empty string,  a  systemd
+         binary will automatically be searched for and used as service manager.
+         If  the  system  manager path is omitted, equal to the empty string or
+         identical to the path to the systemd binary, the state of the initrd's
+         system manager process is passed to the main system manager, which al‐
+         lows later introspection of the state of the services involved in  the
+         initrd boot phase.
+
+         Added in version 209.
+
+     sleep
+         Put  the system to sleep, through suspend, hibernate, hybrid-sleep, or
+         suspend-then-hibernate. The sleep operation to  use  is  automatically
+         selected by systemd-logind.service(8). By default, suspend-then-hiber‐
+         nate is used, and falls back to suspend and then hibernate if not sup‐
+         ported.  Refer  to  SleepOperation= setting in logind.conf(5) for more
+         details. This command is asynchronous, and will return after the sleep
+         operation is successfully enqueued. It will not wait for the sleep/re‐
+         sume cycle to complete.
+
+         Added in version 256.
+
+     suspend
+         Suspend the system. This will trigger activation of the special target
+         unit suspend.target. This command is asynchronous, and will return af‐
+         ter the suspend operation is successfully enqueued. It will  not  wait
+         for the suspend/resume cycle to complete.
+
+         If --force is specified, and systemd-logind returned error for the op‐
+         eration,  the  error  will  be ignored and the operation will be tried
+         again directly through starting the target unit.
+
+     hibernate
+         Hibernate the system. This will trigger activation of the special tar‐
+         get unit hibernate.target. This command is asynchronous, and will  re‐
+         turn after the hibernation operation is successfully enqueued. It will
+         not wait for the hibernate/thaw cycle to complete.
+
+         This command honors --force in the same way as suspend.
+
+     hybrid-sleep
+         Hibernate  and suspend the system. This will trigger activation of the
+         special target unit hybrid-sleep.target. This command is asynchronous,
+         and will return after the hybrid sleep operation is  successfully  en‐
+         queued. It will not wait for the sleep/wake-up cycle to complete.
+
+         This command honors --force in the same way as suspend.
+
+         Added in version 196.
+
+     suspend-then-hibernate
+         Suspend  the  system and hibernate it when the battery is low, or when
+         the delay specified in systemd-sleep.conf elapsed. This  will  trigger
+         activation  of  the special target unit suspend-then-hibernate.target.
+         This command is asynchronous, and will return after the  hybrid  sleep
+         operation   is  successfully  enqueued.  It  will  not  wait  for  the
+         sleep/wake-up or hibernate/thaw cycle to complete.
+
+         This command honors --force in the same way as suspend.
+
+         Added in version 240.
+
+   Parameter Syntax
+     Unit commands listed above take either a single unit name  (designated  as
+     UNIT),  or multiple unit specifications (designated as PATTERN...). In the
+     first case, the unit name with or without a suffix must be given.  If  the
+     suffix  is  not specified (unit name is "abbreviated"), systemctl will ap‐
+     pend a suitable suffix, ".service" by default, and a type-specific  suffix
+     in  case  of commands which operate only on specific unit types. For exam‐
+     ple,
+
+         # systemctl start sshd
+
+     and
+
+         # systemctl start sshd.service
+
+     are equivalent, as are
+
+         # systemctl isolate default
+
+     and
+
+         # systemctl isolate default.target
+
+     Note that (absolute) paths to device nodes are automatically converted  to
+     device unit names, and other (absolute) paths to mount unit names.
+
+         # systemctl status /dev/sda
+         # systemctl status /home
+
+     are equivalent to:
+
+         # systemctl status dev-sda.device
+         # systemctl status home.mount
+
+     In  the second case, shell-style globs will be matched against the primary
+     names of all units currently in memory; literal unit names, with or  with‐
+     out  a  suffix, will be treated as in the first case. This means that lit‐
+     eral unit names always refer to exactly one unit, but globs may match zero
+     units and this is not considered an error.
+
+     Glob patterns use fnmatch(3), so normal  shell-style  globbing  rules  are
+     used,  and  "*",  "?", "[]" may be used. See glob(7) for more details. The
+     patterns are matched against the primary names of units currently in  mem‐
+     ory,  and  patterns  which do not match anything are silently skipped. For
+     example:
+
+         # systemctl stop "sshd@*.service"
+
+     will stop all sshd@.service instances. Note that alias names of units, and
+     units that are not in memory are not considered for glob expansion.
+
+     For unit file commands, the specified UNIT should be the name of the  unit
+     file  (possibly  abbreviated, see above), or the absolute path to the unit
+     file:
+
+         # systemctl enable foo.service
+
+     or
+
+         # systemctl link /path/to/foo.service
+
+OPTIONS
+     The following options are understood:
+

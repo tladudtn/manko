@@ -1,0 +1,111 @@
+     revert UNIT...
+         Revert one or more unit files to their vendor versions.  This  command
+         removes  drop-in  configuration files that modify the specified units,
+         as well as any user-configured unit file  that  overrides  a  matching
+         vendor  supplied unit file. Specifically, for a unit "foo.service" the
+         matching directories "foo.service.d/" with all their  contained  files
+         are  removed,  both below the persistent and runtime configuration di‐
+         rectories (i.e. below /etc/systemd/system and /run/systemd/system); if
+         the unit file has a vendor-supplied version (i.e. a unit file  located
+         below  /usr/)  any matching persistent or runtime unit file that over‐
+         rides it is removed, too. Note that if a unit file has no  vendor-sup‐
+         plied  version  (i.e.  is  only  defined  below /etc/systemd/system or
+         /run/systemd/system, but not in a unit file stored below /usr/),  then
+         it is not removed. Also, if a unit is masked, it is unmasked.
+
+         Effectively,  this  command  may be used to undo all changes made with
+         systemctl edit, systemctl set-property and systemctl mask and puts the
+         original unit file with its settings back in effect.
+
+         Added in version 230.
+
+     add-wants TARGET UNIT..., add-requires TARGET UNIT...
+         Adds "Wants=" or "Requires=" dependencies, respectively, to the speci‐
+         fied TARGET for one or more units.
+
+         This command honors --system, --user, --runtime and --global in a  way
+         similar to enable.
+
+         Added in version 217.
+
+     edit UNIT...
+         Edit  or replace a drop-in snippet or the main unit file, to extend or
+         override the definition of the specified unit.
+
+         Depending on whether --system (the default), --user,  or  --global  is
+         specified,  this  command  will operate on the system unit files, unit
+         files for the calling user, or  the  unit  files  shared  between  all
+         users.
+
+         The  editor (see the "Environment" section below) is invoked on tempo‐
+         rary files which will be written to the real location  if  the  editor
+         exits  successfully.  After  the editing is finished, configuration is
+         reloaded, equivalent to systemctl daemon-reload --system or  systemctl
+         daemon-reload  --user.  For edit --global, the reload is not performed
+         and the edits will take effect only for subsequent logins (or after  a
+         reload is requested in a different way).
+
+         If  --full  is specified, a replacement for the main unit file will be
+         created or edited. Otherwise,  a  drop-in  file  will  be  created  or
+         edited.
+
+         If  --drop-in=  is specified, the given drop-in file name will be used
+         instead of the default override.conf.
+
+         The unit must exist, i.e. its main  unit  file  must  be  present.  If
+         --force  is  specified, this requirement is ignored and a new unit may
+         be created (with --full), or a drop-in for a nonexistent unit  may  be
+         created.
+
+         If  --runtime  is  specified,  the changes will be made temporarily in
+         /run/ and they will be lost on the next reboot.
+
+         If --stdin is specified, the new contents will be read  from  standard
+         input. In this mode, the old contents of the file are discarded.
+
+         If  the temporary file is empty upon exit, the modification of the re‐
+         lated unit is canceled.
+
+         Note that this command cannot be used to remotely edit units and  that
+         you  cannot temporarily edit units which are in /etc/, since they take
+         precedence over /run/.
+
+         Added in version 218.
+
+     get-default
+         Return the default target to boot into. This returns the  target  unit
+         name default.target is aliased (symlinked) to.
+
+         Added in version 205.
+
+     set-default TARGET
+         Set  the  default  target  to  boot into. This sets (symlinks) the de‐
+         fault.target alias to the given target unit.
+
+         Added in version 205.
+
+   Machine Commands
+     list-machines [PATTERN...]
+         List the host and all running local containers with  their  state.  If
+         one  or  more  PATTERNs are specified, only containers matching one of
+         them are shown.
+
+         Added in version 212.
+
+   Job Commands
+     list-jobs [PATTERN...]
+         List jobs that are in progress. If one or more PATTERNs are specified,
+         only jobs for units matching one of them are shown.
+
+         When combined with --after or --before the list is augmented with  in‐
+         formation  on which other job each job is waiting for, and which other
+         jobs are waiting for it, see above.
+
+         Added in version 233.
+
+     cancel [JOB...]
+         Cancel one or more jobs specified on the command line by their numeric
+         job IDs. If no job ID is specified, cancel all pending jobs.
+
+         Added in version 233.
+

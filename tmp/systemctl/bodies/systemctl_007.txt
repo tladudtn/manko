@@ -1,0 +1,167 @@
+COMMANDS
+
+     is-enabled UNIT...
+         Checks  whether  any  of the specified unit files are enabled (as with
+         enable). Returns an exit code  of  0  if  at  least  one  is  enabled,
+         non-zero  otherwise.  Prints the current enable status (see table). To
+         suppress this output, use --quiet. To show installation  targets,  use
+         --full.
+
+         Table 3.  is-enabled output
+         ┌───────────────────┬──────────────────────┬───────────┐
+         │ Name              │ Description          │ Exit Code │
+         ├───────────────────┼──────────────────────┼───────────┤
+         │ "enabled"         │ Enabled via .wants/, │           │
+         ├───────────────────┤ .requires/ or Alias= │           │
+         │ "enabled-runtime" │ symlinks     (perma‐ │           │
+         │                   │ nently in  /etc/sys‐ │ 0         │
+         │                   │ temd/system/,     or │           │
+         │                   │ transiently       in │           │
+         │                   │ /run/systemd/sys‐    │           │
+         │                   │ tem/).               │           │
+         ├───────────────────┼──────────────────────┼───────────┤
+         │ "linked"          │ Made       available │           │
+         ├───────────────────┤ through one or  more │           │
+         │ "linked-runtime"  │ symlinks to the unit │           │
+         │                   │ file (permanently in │           │
+         │                   │ /etc/systemd/system/ │           │
+         │                   │ or   transiently  in │ > 0       │
+         │                   │ /run/systemd/sys‐    │           │
+         │                   │ tem/),  even  though │           │
+         │                   │ the  unit file might │           │
+         │                   │ reside  outside   of │           │
+         │                   │ the unit file search │           │
+         │                   │ path.                │           │
+         ├───────────────────┼──────────────────────┼───────────┤
+         │ "alias"           │ The name is an alias │ 0         │
+         │                   │ (symlink  to another │           │
+         │                   │ unit file).          │           │
+         ├───────────────────┼──────────────────────┼───────────┤
+         │ "masked"          │ Completely disabled, │           │
+         ├───────────────────┤ so  that  any  start │           │
+         │ "masked-runtime"  │ operation    on   it │           │
+         │                   │ fails   (permanently │ > 0       │
+         │                   │ in /etc/systemd/sys‐ │           │
+         │                   │ tem/  or transiently │           │
+         │                   │ in /run/systemd/sys‐ │           │
+         │                   │ temd/).              │           │
+         ├───────────────────┼──────────────────────┼───────────┤
+         │ "static"          │ The unit file is not │ 0         │
+         │                   │ enabled, and has  no │           │
+         │                   │ provisions  for  en‐ │           │
+         │                   │ abling in  the  [In‐ │           │
+         │                   │ stall]   unit   file │           │
+         │                   │ section.             │           │
+         ├───────────────────┼──────────────────────┼───────────┤
+         │ "indirect"        │ The unit file itself │ 0         │
+         │                   │ is not enabled,  but │           │
+         │                   │ it  has  a non-empty │           │
+         │                   │ Also= setting in the │           │
+         │                   │ [Install] unit  file │           │
+         │                   │ section,     listing │           │
+         │                   │ other   unit   files │           │
+         │                   │ that  might  be  en‐ │           │
+         │                   │ abled, or it has  an │           │
+         │                   │ alias  under  a dif‐ │           │
+         │                   │ ferent name  through │           │
+         │                   │ a  symlink  that  is │           │
+         │                   │ not   specified   in │           │
+         │                   │ Also=.  For template │           │
+         │                   │ unit files,  an  in‐ │           │
+         │                   │ stance     different │           │
+         │                   │ than the one  speci‐ │           │
+         │                   │ fied  in  DefaultIn‐ │           │
+         │                   │ stance= is enabled.  │           │
+         ├───────────────────┼──────────────────────┼───────────┤
+         │ "disabled"        │ The unit file is not │ > 0       │
+         │                   │ enabled,  but   con‐ │           │
+         │                   │ tains  an  [Install] │           │
+         │                   │ section with instal‐ │           │
+         │                   │ lation instructions. │           │
+         ├───────────────────┼──────────────────────┼───────────┤
+         │ "generated"       │ The  unit  file  was │ 0         │
+         │                   │ generated    dynami‐ │           │
+         │                   │ cally via a  genera‐ │           │
+         │                   │ tor  tool.  See sys‐ │           │
+         │                   │ temd.generator(7).   │           │
+         │                   │ Generated unit files │           │
+         │                   │ may not be  enabled, │           │
+         │                   │ they are enabled im‐ │           │
+         │                   │ plicitly   by  their │           │
+         │                   │ generator.           │           │
+         ├───────────────────┼──────────────────────┼───────────┤
+         │ "transient"       │ The  unit  file  has │ 0         │
+         │                   │ been created dynami‐ │           │
+         │                   │ cally  with the run‐ │           │
+         │                   │ time API.  Transient │           │
+         │                   │ units may not be en‐ │           │
+         │                   │ abled.               │           │
+         ├───────────────────┼──────────────────────┼───────────┤
+         │ "bad"             │ The unit file is in‐ │ > 0       │
+         │                   │ valid or another er‐ │           │
+         │                   │ ror  occurred.  Note │           │
+         │                   │ that is-enabled will │           │
+         │                   │ not actually  return │           │
+         │                   │ this    state,   but │           │
+         │                   │ print an error  mes‐ │           │
+         │                   │ sage  instead.  How‐ │           │
+         │                   │ ever, the unit  file │           │
+         │                   │ listing  printed  by │           │
+         │                   │ list-unit-files      │           │
+         │                   │ might show it.       │           │
+         ├───────────────────┼──────────────────────┼───────────┤
+         │ "not-found"       │ The unit  file  does │ 4         │
+         │                   │ not exist.           │           │
+         └───────────────────┴──────────────────────┴───────────┘
+
+         Added in version 238.
+
+     mask UNIT...
+         Mask  one  or  more units, as specified on the command line. This will
+         link these unit files to /dev/null,  making  it  impossible  to  start
+         them.  This  is  a stronger version of disable, since it prohibits all
+         kinds of activation of the unit, including enablement and manual acti‐
+         vation. Use this option with care. This honors the --runtime option to
+         only mask temporarily until the next reboot of the system.  The  --now
+         option  may  be  used  to ensure that the units are also stopped. This
+         command expects valid unit names only, it does not  accept  unit  file
+         paths.
+
+         Note  that  this  will  create  a  symlink  under  the  unit's name in
+         /etc/systemd/system/ (in case --runtime is not specified) or /run/sys‐
+         temd/system/ (in case --runtime is specified). If a matching unit file
+         already exists under these directories this operation will hence fail.
+         This means that the  operation  is  primarily  useful  to  mask  units
+         shipped  by  the vendor (as those are shipped in /usr/lib/systemd/sys‐
+         tem/ and not the aforementioned two directories), but  typically  does
+         not work for units created locally (as those are typically placed pre‐
+         cisely  in  the  two aforementioned directories). Similar restrictions
+         apply for --user mode, in which case the  directories  are  below  the
+         user's home directory however.
+
+         If  a  unit  gets  masked but its triggering units are still active, a
+         warning containing  the  names  of  the  triggering  units  is  shown.
+         --no-warn can be used to suppress the warning.
+
+         Added in version 238.
+
+     unmask UNIT...
+         Unmask  one or more unit files, as specified on the command line. This
+         will undo the effect of mask. This command expects  valid  unit  names
+         only, it does not accept unit file paths.
+
+         Added in version 238.
+
+     link PATH...
+         Link  a  unit  file  that is not in the unit file search path into the
+         unit file search path. This command expects an absolute path to a unit
+         file. The effect of this may be undone with  disable.  The  effect  of
+         this  command  is that a unit file is made available for commands such
+         as start, even though it is not installed directly in the unit  search
+         path.  The file system where the linked unit files are located must be
+         accessible when systemd is started (e.g. anything underneath /home/ or
+         /var/ is not allowed, unless those directories are located on the root
+         file system).
+
+         Added in version 233.
+

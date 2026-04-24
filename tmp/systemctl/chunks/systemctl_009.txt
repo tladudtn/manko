@@ -1,0 +1,124 @@
+   Environment Commands
+     systemd supports an environment block that is passed to processes the man‐
+     ager spawns. The names of the variables can contain ASCII letters, digits,
+     and the underscore character. Variable names cannot be empty or start with
+     a digit. In variable values, most characters are allowed,  but  the  whole
+     sequence  must  be valid UTF-8. (Note that control characters like newline
+     (NL), tab (TAB), or the escape character (ESC), are valid ASCII  and  thus
+     valid  UTF-8).  The  total  length  of the environment block is limited to
+     _SC_ARG_MAX value defined by sysconf(3).
+
+     show-environment
+         Dump the systemd manager environment block. This  is  the  environment
+         block that is passed to all processes the manager spawns. The environ‐
+         ment  block will be dumped in straightforward form suitable for sourc‐
+         ing into most shells.  If  no  special  characters  or  whitespace  is
+         present  in the variable values, no escaping is performed, and the as‐
+         signments have the form "VARIABLE=value". If whitespace or  characters
+         which  have  special  meaning  to  the  shell are present, dollar-sin‐
+         gle-quote escaping is used,  and  assignments  have  the  form  "VARI‐
+         ABLE=$'value'".  This  syntax  is  known  to  be supported by bash(1),
+         zsh(1), ksh(1), and busybox(1)'s ash(1), but not dash(1) or fish(1).
+
+         Note that this shows the effective block, i.e. the combination of  en‐
+         vironment  variables  configured  via configuration files, environment
+         generators and via IPC (i.e. via the set-environment described below).
+         At the moment a unit process is forked off, this combined  environment
+         block  will  be  further combined with per-unit environment variables,
+         which are not visible in this command.
+
+     set-environment VARIABLE=VALUE...
+         Set one or more service manager environment variables, as specified on
+         the command line. This command will fail if variable names and  values
+         do not conform to the rules listed above.
+
+         Note  that this operates on an environment block separate from the en‐
+         vironment block configured from service manager configuration and  en‐
+         vironment generators. Whenever a process is invoked the two blocks are
+         combined  (also  incorporating any per-service environment variables),
+         and passed to it. The show-environment verb will show the  combination
+         of the blocks, see above.
+
+         Added in version 233.
+
+     unset-environment VARIABLE...
+         Unset  one  or  more  systemd manager environment variables. If only a
+         variable name is specified, it  will  be  removed  regardless  of  its
+         value.  If  a variable and a value are specified, the variable is only
+         removed if it has the specified value.
+
+         Note that this operates on an environment block separate from the  en‐
+         vironment  block configured from service manager configuration and en‐
+         vironment generators. Whenever a process is invoked the two blocks are
+         combined (also incorporating any per-service  environment  variables),
+         and  passed to it. The show-environment verb will show the combination
+         of the blocks, see above. Note that this means this command cannot  be
+         used  to  unset  environment  variables defined in the service manager
+         configuration files or via generators.
+
+         Added in version 233.
+
+     import-environment VARIABLE...
+         Import all, one or more environment variables set on the  client  into
+         the  systemd manager environment block. If a list of environment vari‐
+         able names is passed, client-side values are then  imported  into  the
+         manager's  environment  block.  If any names are not valid environment
+         variable names or have invalid values according to the rules described
+         above, an error is raised. If no arguments are passed, the entire  en‐
+         vironment  block  inherited  by  the systemctl process is imported. In
+         this mode, any inherited invalid environment variables are quietly ig‐
+         nored.
+
+         Importing of the full inherited environment block (calling  this  com‐
+         mand  without any arguments) is deprecated. A shell will set dozens of
+         variables which only  make  sense  locally  and  are  only  meant  for
+         processes  which  are  descendants of the shell. Such variables in the
+         global environment block are confusing to other processes.
+
+         Added in version 209.
+
+   Manager State Commands
+     daemon-reload
+         Reload the systemd manager configuration. This will rerun all  genera‐
+         tors  (see  systemd.generator(7)), reload all unit files, and recreate
+         the entire dependency tree. While the daemon is  being  reloaded,  all
+         sockets  systemd listens on behalf of user configuration will stay ac‐
+         cessible.
+
+         This command should not be confused with the reload command.
+
+     daemon-reexec
+         Reexecute the systemd manager. This will serialize the manager  state,
+         reexecute the process and deserialize the state again. This command is
+         of little use except for debugging and package upgrades. Sometimes, it
+         might  be helpful as a heavy-weight daemon-reload. While the daemon is
+         being reexecuted, all sockets systemd listening on behalf of user con‐
+         figuration will stay accessible.
+
+     log-level [LEVEL]
+         If no argument is given, print the current log level of  the  manager.
+         If  an  optional  argument LEVEL is provided, then the command changes
+         the current log level of the manager to LEVEL (accepts the same values
+         as --log-level= described in systemd(1)).
+
+         Added in version 244.
+
+     log-target [TARGET]
+         If no argument is given, print the current log target of the  manager.
+         If  an  optional argument TARGET is provided, then the command changes
+         the current log target of the manager to TARGET (accepts the same val‐
+         ues as --log-target=, described in systemd(1)).
+
+         Added in version 244.
+
+     service-watchdogs [yes|no]
+         If no argument is given, print the current state  of  service  runtime
+         watchdogs of the manager. If an optional boolean argument is provided,
+         then  globally  enables  or  disables  the  service  runtime watchdogs
+         (WatchdogSec=) and emergency actions (e.g.  OnFailure=  or  StartLimi‐
+         tAction=);  see  systemd.service(5).  The hardware watchdog is not af‐
+         fected by this setting.
+
+         Added in version 244.
+
+   System Commands

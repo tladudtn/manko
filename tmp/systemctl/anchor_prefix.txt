@@ -1,0 +1,17 @@
+systemctl_001	0
+systemctl_002	2
+systemctl_003	2
+systemctl_004	2
+systemctl_005	2
+systemctl_006	2
+systemctl_007	2
+systemctl_008	2
+systemctl_009	2
+systemctl_010	2
+systemctl_011	2
+systemctl_012	2
+systemctl_013	2
+systemctl_014	2
+systemctl_015	2
+systemctl_016	2
+systemctl_017	2

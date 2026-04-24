@@ -1,0 +1,168 @@
+OPTIONS
+
+     --job-mode=
+         When  queuing a new job, this option controls how to deal with already
+         queued jobs. It  takes  one  of  "fail",  "lenient",  "replace",  "re‐
+         place-irreversibly",   "isolate",  "ignore-dependencies",  "ignore-re‐
+         quirements", "flush",  "triggering",  or  "restart-dependencies".  De‐
+         faults to "replace", except when the isolate command is used which im‐
+         plies the "isolate" job mode.
+
+         If  "fail" is specified and a requested operation on weak dependencies
+         conflicts with a pending job (more  specifically:  causes  an  already
+         pending start job to be reversed into a stop job or vice versa), cause
+         the operation to fail.
+
+         If "lenient" is specified and a requested operation conflicts with any
+         active/activating unit, cause the operation to fail.
+
+         If  "replace"  (the default) is specified, any conflicting pending job
+         will be replaced, as necessary.
+
+         If "replace-irreversibly" is specified, operate  like  "replace",  but
+         also mark the new jobs as irreversible. This prevents future conflict‐
+         ing  transactions  from  replacing  these jobs (or even being enqueued
+         while the irreversible jobs are still pending). Irreversible jobs  can
+         still  be  cancelled using the cancel command. This job mode should be
+         used on any transaction which pulls in shutdown.target.
+
+         "isolate" is only valid for start  operations  and  causes  all  other
+         units  to  be stopped when the specified unit is started. This mode is
+         always used when the isolate command is used.
+
+         "flush" will cause all queued jobs to be canceled when the new job  is
+         enqueued.
+
+         If  "ignore-dependencies" is specified, then all unit dependencies are
+         ignored for this new job and the operation is executed immediately. If
+         passed, no required units of the unit passed will be pulled in, and no
+         ordering dependencies will be honored. This is mostly a debugging  and
+         rescue  tool  for the administrator and should not be used by applica‐
+         tions.
+
+         "ignore-requirements" is similar to  "ignore-dependencies",  but  only
+         causes the requirement dependencies to be ignored, the ordering depen‐
+         dencies will still be honored.
+
+         "triggering"  may  only be used with systemctl stop. In this mode, the
+         specified unit and any active units that trigger it are  stopped.  See
+         the  discussion  of  Triggers= in systemd.unit(5) for more information
+         about triggering units.
+
+         "restart-dependencies" may only be used with systemctl start. In  this
+         mode, dependencies of the specified unit will receive restart propaga‐
+         tion, as if a restart job had been enqueued for the unit.
+
+         Added in version 209.
+
+     -T, --show-transaction
+         When  enqueuing a unit job (for example as effect of a systemctl start
+         invocation or similar), show brief  information  about  all  jobs  en‐
+         queued,  covering both the requested job and any added because of unit
+         dependencies. Note that the output will only include jobs  immediately
+         part  of  the  transaction  requested.  It  is  possible  that service
+         start-up program code run as effect of the enqueued jobs might request
+         further jobs to be pulled in. This means that completion of the listed
+         jobs might ultimately entail more jobs than the listed ones.
+
+         Added in version 242.
+
+     --fail
+         Shorthand for --job-mode=fail.
+
+         When used with the kill command, if no units were killed,  the  opera‐
+         tion results in an error.
+
+         Added in version 227.
+
+     --check-inhibitors=
+         When system shutdown or sleep state is requested, this option controls
+         checking  of inhibitor locks. It takes one of "auto", "yes", and "no".
+         Defaults to "auto", which means logind will perform the check and  re‐
+         spect active inhibitor locks, but systemctl will only do a client-side
+         check  for  interactive  invocations (i.e. from a TTY), so that a more
+         friendly and informative error can be returned to  users.   "no"  dis‐
+         ables the checks both in systemctl and systemd-logind(8).
+
+         Applications  can  establish inhibitor locks to prevent certain impor‐
+         tant operations (such as CD burning) from being interrupted by  system
+         shutdown  or sleep. Any user may take these locks and privileged users
+         may override these locks. If any locks are taken, shutdown  and  sleep
+         state  requests  will normally fail (unless explicitly overridden with
+         "no").
+
+         Option --force provides another way to override inhibitors.
+
+         Added in version 248.
+
+     -i
+         Shortcut for --check-inhibitors=no.
+
+         Added in version 198.
+
+     --dry-run
+         Just print what would be done.  Currently  supported  by  verbs  halt,
+         poweroff,   reboot,  kexec,  suspend,  hibernate,  hybrid-sleep,  sus‐
+         pend-then-hibernate, default, rescue, emergency, and exit.
+
+         Added in version 236.
+
+     -q, --quiet
+         Suppress printing of the results of  various  commands  and  also  the
+         hints about truncated log lines. This does not suppress output of com‐
+         mands for which the printed output is the only result (like show). Er‐
+         rors are always printed.
+
+     -v, --verbose
+         Display unit log output while executing unit operations.
+
+         Added in version 258.
+
+     --no-warn
+         Do not generate the warnings shown by default in the following cases:
+
+         •   when systemctl is invoked without procfs mounted on /proc/,
+
+         •   when  using enable or disable on units without install information
+             (i.e. do not have or have an empty [Install] section),
+
+         •   when using disable combined with --user on units that are  enabled
+             in global scope,
+
+         •   when a stop-ped, disable-d, or mask-ed unit still has active trig‐
+             gering units,
+
+         •   when a unit file is changed and requires daemon-reload.
+
+         Added in version 253.
+
+     --no-block
+         Do  not  synchronously  wait for the requested operation to finish. If
+         this is not specified, the job will be verified, enqueued and  system‐
+         ctl  will wait until the unit's start-up is completed. By passing this
+         argument, it is only verified and enqueued. This  option  may  not  be
+         combined with --wait.
+
+     --wait
+         When  used with start or restart, synchronously wait for started units
+         to terminate again. This option may not be combined  with  --no-block.
+         Note  that  this  will wait forever if any given unit never terminates
+         (by itself or by getting stopped  explicitly);  particularly  services
+         which use "RemainAfterExit=yes".
+
+         When  used with is-system-running, wait until the boot process is com‐
+         pleted before returning.
+
+         When used with kill, wait until the signalled  units  terminate.  Note
+         that this will wait forever if any given unit never terminates.
+
+         Added in version 232.
+
+     --user
+         Talk  to the service manager of the calling user, rather than the ser‐
+         vice manager of the system.
+
+     --system
+         Talk to the service manager of the system. This  is  the  implied  de‐
+         fault.
+

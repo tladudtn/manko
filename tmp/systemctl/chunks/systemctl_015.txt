@@ -1,0 +1,162 @@
+     --image-policy=policy
+         Takes an image policy string as argument,  as  per  systemd.image-pol‐
+         icy(7). The policy is enforced when operating on the disk image speci‐
+         fied  via  --image=,  see above. If not specified, defaults to the "*"
+         policy, i.e. all recognized file systems in the image are used.
+
+     --runtime
+         When used with enable, disable, edit,  (and  related  commands),  make
+         changes  only  temporarily,  so that they are lost on the next reboot.
+         This will have the effect that changes are not made in  subdirectories
+         of  /etc/  but  in  /run/,  with identical immediate effects, however,
+         since the latter is lost on reboot, the changes are lost too.
+
+         Similarly, when used with set-property, make changes only temporarily,
+         so that they are lost on the next reboot.
+
+     --preset-mode=
+         Takes one of "full" (the default), "enable-only", "disable-only". When
+         used with the preset or preset-all commands,  controls  whether  units
+         shall  be  disabled and enabled according to the preset rules, or only
+         enabled, or only disabled.
+
+         Added in version 215.
+
+     -n, --lines=
+         When used with status, controls the number of journal lines  to  show,
+         counting from the most recent ones. Takes a positive integer argument,
+         or 0 to disable journal output. Defaults to 10.
+
+     -o, --output=
+         When  used with status, controls the formatting of the journal entries
+         that are shown. For the available choices, see journalctl(1). Defaults
+         to "short".
+
+     --firmware-setup
+         When used with the reboot, poweroff, or halt command, indicate to  the
+         system's  firmware to reboot into the firmware setup interface for the
+         next boot. Note that this functionality is not available on  all  sys‐
+         tems.
+
+         Added in version 220.
+
+     --boot-loader-menu=timeout
+         When  used with the reboot, poweroff, or halt command, indicate to the
+         system's boot loader to show the boot loader  menu  on  the  following
+         boot.  Takes a time value as parameter —— indicating the menu timeout.
+         Pass zero in order to disable the menu timeout. Note that not all boot
+         loaders support this functionality.
+
+         Added in version 242.
+
+     --boot-loader-entry=ID
+         When used with the reboot, poweroff, or halt command, indicate to  the
+         system's  boot loader to boot into a specific boot loader entry on the
+         following boot. Takes a boot loader entry identifier as  argument,  or
+         "help"  in  order  to  list  available entries. Note that not all boot
+         loaders support this functionality.
+
+         Added in version 242.
+
+     --reboot-argument=
+         This switch is  used  with  reboot.  The  value  is  architecture  and
+         firmware  specific. As an example, "recovery" might be used to trigger
+         system recovery, and "fota" might be used to trigger a “firmware  over
+         the air” update.
+
+         Added in version 246.
+
+     --plain
+         When  used  with  list-dependencies,  list-units or list-machines, the
+         output is printed as a list instead of a tree, and the bullet  circles
+         are omitted.
+
+         Added in version 203.
+
+     --timestamp=
+         Change  the  format of printed timestamps. The following values may be
+         used:
+
+         pretty (this is the default)
+             "Day YYYY-MM-DD HH:MM:SS TZ"
+
+             Added in version 248.
+
+         unix
+             "@seconds-since-the-epoch"
+
+             Added in version 251.
+
+         us, μs
+             "Day YYYY-MM-DD HH:MM:SS.UUUUUU TZ"
+
+             Added in version 248.
+
+         utc
+             "Day YYYY-MM-DD HH:MM:SS UTC"
+
+             Added in version 248.
+
+         us+utc, μs+utc
+             "Day YYYY-MM-DD HH:MM:SS.UUUUUU UTC"
+
+             Added in version 248.
+
+         Added in version 247.
+
+     --mkdir
+         When used with bind, creates the destination file or directory  before
+         applying the bind mount. Note that even though the name of this option
+         suggests  that  it  is suitable only for directories, this option also
+         creates the destination file node to mount over if the object to mount
+         is not a directory, but a regular file, device node, socket or FIFO.
+
+         Added in version 248.
+
+     --read-only
+         When used with bind, creates a read-only bind mount.
+
+         Added in version 248.
+
+     --drop-in=NAME
+         When used with edit, use NAME as the  drop-in  file  name  instead  of
+         override.conf.
+
+         Added in version 253.
+
+     --when=
+         When used with halt, poweroff, reboot or kexec, schedule the action to
+         be performed at the given timestamp, which should adhere to the syntax
+         documented in systemd.time(7) section "PARSING TIMESTAMPS". Specially,
+         if  "show"  is  given,  the  currently scheduled action will be shown,
+         which can be canceled by passing an empty string or "cancel".   "auto"
+         will schedule the action according to maintenance window or one minute
+         in the future.
+
+         Added in version 254.
+
+     --stdin
+         When  used with edit, the contents of the file will be read from stan‐
+         dard input and the editor will not be launched. In this mode, the  old
+         contents of the file are completely replaced. This is useful to "edit"
+         unit files from scripts:
+
+             $ systemctl edit --drop-in=limits.conf --stdin some-service.service <<EOF
+             [Unit]
+             AllowedCPUs=7,11
+             EOF
+
+         Multiple drop-ins may be "edited" in this mode; the same contents will
+         be written to all of them.
+
+         Added in version 256.
+
+     -H, --host=
+         Execute  the operation remotely. Specify a hostname, or a username and
+         hostname separated by "@", to connect to. The hostname may  optionally
+         be  suffixed by a port ssh is listening on, separated by ":", and then
+         a container name, separated by "/", which connects directly to a  spe‐
+         cific  container  on  the specified host. This will use SSH to talk to
+         the remote machine manager instance. Container names may be enumerated
+         with machinectl -H HOST. Put IPv6 addresses in brackets.
+

@@ -1,0 +1,97 @@
+ENVIRONMENT
+
+     $SYSTEMD_LESSCHARSET
+         Override the charset passed to less (by default "utf-8", if the invok‐
+         ing terminal is determined to be UTF-8 compatible).
+
+         Note that setting the regular $LESSCHARSET environment variable has no
+         effect for less invocations by systemd tools.
+
+     $SYSTEMD_PAGERSECURE
+         Common pager commands like less(1),  in  addition  to  "paging",  i.e.
+         scrolling  through  the output, support opening of or writing to other
+         files and running arbitrary shell commands. When commands are  invoked
+         with  elevated privileges, for example under sudo(8) or pkexec(1), the
+         pager becomes a security boundary. Care must be taken that  only  pro‐
+         grams  with strictly limited functionality are used as pagers, and un‐
+         intended interactive features like opening or creation of new files or
+         starting of subprocesses are not allowed. "Secure mode" for the  pager
+         may  be  enabled  as described below, if the pager supports that (most
+         pagers are not written in a way that takes this  into  consideration).
+         It is recommended to either explicitly enable "secure mode" or to com‐
+         pletely  disable the pager using --no-pager or PAGER=cat when allowing
+         untrusted users to execute commands with elevated privileges.
+
+         This option takes a boolean argument. When set to  true,  the  "secure
+         mode"  of the pager is enabled. In "secure mode", LESSSECURE=1 will be
+         set when invoking the pager, which instructs the pager to disable com‐
+         mands that open or create new files or start  new  subprocesses.  Cur‐
+         rently only less(1) is known to understand this variable and implement
+         "secure mode".
+
+         When  set to false, no limitation is placed on the pager. Setting SYS‐
+         TEMD_PAGERSECURE=0 or not removing it from the  inherited  environment
+         may allow the user to invoke arbitrary commands.
+
+         When  $SYSTEMD_PAGERSECURE  is not set, systemd tools attempt to auto‐
+         matically figure out if "secure mode" should be  enabled  and  whether
+         the  pager  supports it. "Secure mode" is enabled if the effective UID
+         is not the same as the owner of the login session, see geteuid(2)  and
+         sd_pid_get_owner_uid(3),  or  when  running  under  sudo(8) or similar
+         tools ($SUDO_UID is set [4]). In  those  cases,  SYSTEMD_PAGERSECURE=1
+         will  be set and pagers which are not known to implement "secure mode"
+         will not be used at all. Note that this autodetection only covers  the
+         most common mechanisms to elevate privileges and is intended as conve‐
+         nience.  It  is  recommended to explicitly set $SYSTEMD_PAGERSECURE or
+         disable the pager.
+
+         Note that if the $SYSTEMD_PAGER or $PAGER variables  are  to  be  hon‐
+         oured,  other  than to disable the pager, $SYSTEMD_PAGERSECURE must be
+         set too.
+
+     $SYSTEMD_COLORS
+         Takes a boolean argument, or a special value. By default (unset), sys‐
+         temd and related utilities will use colors in their output  if  possi‐
+         ble.  If  $COLORTERM  is  set to "truecolor" or "24bit", 24-bit colors
+         will be enabled, 256 colors otherwise, unless $NO_COLOR or $TERM indi‐
+         cates colors are disabled.
+
+         true
+             Same as unset, except that $NO_COLOR is ignored.
+
+         false
+             The output will be monochrome.
+
+         "16", "256", "24bit"
+             Always use the base 16 ANSI colors, 256 colors, or 24  bit  color,
+             respectively.
+
+         "auto-16", "auto-256", "auto-24bit"
+             Use  the given quantity of colours, subject to $TERM, and what the
+             console is connected to.
+
+     $SYSTEMD_URLIFY
+         The value must be a boolean. Controls whether clickable  links  should
+         be  generated  in  the  output for terminal emulators supporting this.
+         This can be specified to override  the  decision  that  systemd  makes
+         based on $TERM and other conditions.
+
+SEE ALSO
+     systemd(1),  journalctl(1),  loginctl(1),  machinectl(1), systemd.unit(5),
+     systemd.resource-control(5),  systemd.special(7),  wall(1),   systemd.pre‐
+     set(5), systemd.generator(7), glob(7)
+
+NOTES
+      1. UAPI.1 Boot Loader Specification
+         https://uapi-group.org/specifications/specs/boot_loader_specification
+
+      2. UAPI.2 Discoverable Partitions Specification
+         https://uapi-group.org/specifications/specs/discoverable_partitions_specification
+
+      3. LSB 3.0.0
+         http://refspecs.linuxbase.org/LSB_3.0.0/LSB-PDA/LSB-PDA/iniscrptact.html
+
+      4. It is recommended for other tools to set and check $SUDO_UID as appro‐
+         priate, treating it is a common interface.
+
+systemd 260.1                                                      SYSTEMCTL(1)

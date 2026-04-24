@@ -1,0 +1,130 @@
+COMMANDS
+
+     list-dependencies [UNIT...]
+         Shows  units  required  and wanted by the specified units. This recur‐
+         sively lists units following the Requires=, Requisite=,  Wants=,  Con‐
+         sistsOf=,  BindsTo=, and Upholds= dependencies. If no units are speci‐
+         fied, default.target is implied.
+
+         The units that are shown are  additionally  filtered  by  --type=  and
+         --state= if those options are specified. Note that we will not be able
+         to use a tree structure in this case, so --plain is implied.
+
+         By  default, only target units are recursively expanded. When --all is
+         passed, all other units are recursively expanded as well.
+
+         Options --reverse, --after, --before may be used to change what  types
+         of dependencies are shown.
+
+         Note  that  this command only lists units currently loaded into memory
+         by the service manager. In particular, this command is not suitable to
+         get a comprehensive list at all reverse  dependencies  on  a  specific
+         unit, as it will not list the dependencies declared by units currently
+         not loaded.
+
+         Added in version 198.
+
+     start PATTERN...
+         Start (activate) one or more units specified on the command line.
+
+         Note  that  unit  glob  patterns expand to names of units currently in
+         memory. Units which are not active and are not in a failed state  usu‐
+         ally are not in memory, and will not be matched by any pattern. In ad‐
+         dition, in case of instantiated units, systemd is often unaware of the
+         instance  name  until  the instance has been started. Therefore, using
+         glob patterns with start has limited usefulness. Also, secondary alias
+         names of units are not considered.
+
+         Option --all may be used to also operate on inactive units  which  are
+         referenced  by  other  loaded units. Note that this is not the same as
+         operating on "all" possible units, because as the  previous  paragraph
+         describes,  such  a list is ill-defined. Nevertheless, systemctl start
+         --all GLOB may be useful if all the units that should match  the  pat‐
+         tern are pulled in by some target which is known to be loaded.
+
+     stop PATTERN...
+         Stop (deactivate) one or more units specified on the command line.
+
+         This  command  will  fail if the unit does not exist or if stopping of
+         the unit is prohibited (see RefuseManualStop= in systemd.unit(5)).  It
+         will  not fail if any of the commands configured to stop the unit (Ex‐
+         ecStop=, etc.) fail, because the manager will still forcibly terminate
+         the unit.
+
+         If a unit that gets stopped can still be triggered by other  units,  a
+         warning  containing  the  names  of  the  triggering  units  is shown.
+         --no-warn can be used to suppress the warning.
+
+     reload PATTERN...
+         Asks all units listed on the command line to reload  their  configura‐
+         tion.  Note  that this will reload the service-specific configuration,
+         not the unit configuration file of systemd. If you want systemd to re‐
+         load the configuration file of a unit, use the daemon-reload  command.
+         In  other  words:  for  the  example  case of Apache, this will reload
+         Apache's httpd.conf in the web server, not the apache.service  systemd
+         unit file.
+
+         This command should not be confused with the daemon-reload command.
+
+     restart PATTERN...
+         Stop  and  then start one or more units specified on the command line.
+         If the units are not running yet, they will be started.
+
+         Note that restarting a unit with this  command  does  not  necessarily
+         flush  out all of the unit's resources before it is started again. For
+         example,  the  per-service  file  descriptor  storage  facility   (see
+         FileDescriptorStoreMax=  in  systemd.service(5)) will remain intact as
+         long as the unit has a job pending, and is only cleared when the  unit
+         is  fully  stopped  and no jobs are pending anymore. If it is intended
+         that the file descriptor store is flushed out, too, during  a  restart
+         operation  an  explicit  systemctl  stop command followed by systemctl
+         start should be issued.
+
+     try-restart PATTERN...
+         Stop and then start one or more units specified on the command line if
+         the units are running. This does nothing if units are not running.
+
+     enqueue-marked
+         Enqueue start/stop/restart/reload jobs for all units that have the re‐
+         spective "needs-*" markers set. When a unit marked for reload does not
+         support reload, restart will be queued. Those properties  can  be  set
+         using set-property Markers=....
+
+         Unless  --no-block is used, systemctl will wait for the queued jobs to
+         finish.
+
+         Added in version 260.
+
+     reload-or-restart PATTERN...
+         Reload one or more units if they support it. If  not,  stop  and  then
+         start  them  instead.  If  the units are not running yet, they will be
+         started.
+
+         When used in combination with --marked, it is a  deprecated  alias  of
+         enqueue-marked.
+
+     try-reload-or-restart PATTERN...
+         Reload  one  or  more  units if they support it. If not, stop and then
+         start them instead. This does nothing if the units are not running.
+
+         Added in version 229.
+
+     isolate UNIT
+         Start the unit specified on the command line and its dependencies  and
+         stop  all  others,  unless  they  have  IgnoreOnIsolate=yes  (see sys‐
+         temd.unit(5)). If a unit name with no extension is given, an extension
+         of ".target" will be assumed.
+
+         This command is dangerous, since it will  immediately  stop  processes
+         that are not enabled in the new target, possibly including the graphi‐
+         cal environment or terminal you are currently using.
+
+         Note  that this operation is allowed only on units where AllowIsolate=
+         is enabled. See systemd.unit(5) for details.
+
+     kill PATTERN...
+         Send a UNIX process signal to one or more processes of the  unit.  Use
+         --kill-whom= to select which process to send the signal to. Use --sig‐
+         nal=  to  select the signal to send. Combine with --kill-value= to en‐
+         queue a POSIX Realtime Signal with an associated value.
+
