@@ -4,7 +4,7 @@ TODO.md
 models/*
 !models/.gitkeep
 tmp/*
-!tmp/.gitkeep
+#!tmp/.gitkeep
 backup/
 backup/*
 .claude
