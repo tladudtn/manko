@@ -48,11 +48,9 @@ RTX 4070 Ti 12GB, gemma-4-E4B Q8_0 기준. 청크당 ~45s (cold load 병목).
 ## 디렉토리 구조
 
 ```
-manko.sh                    # 메인 셸 함수 (~/.zshrc에 source)
 run_translate.sh            # 전체 파이프라인 PoC
 recursive_chunk.sh          # 5단계 재귀 분할 + 탐욕 병합 청킹
 token_utils.sh              # 3단 캐스케이드 토큰 측정 + content_hash 캐시
-backup/                     # 옛 PoC/폐기 스크립트 (Analysis/chucking 등)
 models/                     # GGUF 모델 파일 (내용 gitignored)
 tmp/<command>/              # 명령어별 번역 산출물 (내용 gitignored)
   source.txt                #   man 원문
