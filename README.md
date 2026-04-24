@@ -1,6 +1,7 @@
 # manko
 
 > man page → 한국어 번역기 (로컬 LLM)
+> ./tmp/systemctl 에서 번역 결과를 볼 수 있습니다.
 
 `man <command>` 출력을 llama.cpp + gemma-4-E4B 로 한국어 번역하는 셸 도구. [`man-pages-ko`](https://wariua.github.io/man-pages-ko/) 미지원 명령어 보완.
 
