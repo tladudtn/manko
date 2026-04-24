@@ -8,12 +8,10 @@
 ## Quick start
 
 ```bash
-source manko.sh
-manko ls           # 캐시 없으면 번역 → 표시, 있으면 즉시
-MODEL_KEY=26b manko find    # 모델 선택 (e4b | 26b | supergemma)
+./run_translate.sh <command>
 ```
 
-캐시 위치: `~/.cache/manko/trans_ko/`
+캐시 위치: `./tmp/<command>/<command>_ko.txt`
 
 PoC 파이프라인 직접 실행:
 
