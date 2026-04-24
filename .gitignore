@@ -1,0 +1,10 @@
+CLAUDE.md
+MEMO.md
+TODO.md
+models/*
+!models/.gitkeep
+tmp/*
+!tmp/.gitkeep
+backup/
+backup/*
+.claude
